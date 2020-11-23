@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Projet RSA 2020</string>
+    <string name="decrypter_rsa">Décrypter RSA</string>
+    <string name="generer_les_codes_rsa">Générer les codes RSA</string>
 </resources>
