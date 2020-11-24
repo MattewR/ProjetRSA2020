@@ -2,4 +2,9 @@
     <string name="app_name">Projet RSA 2020</string>
     <string name="decrypter_rsa">Décrypter RSA</string>
     <string name="generer_les_codes_rsa">Générer les codes RSA</string>
+    <string name="message_re_u">Message reçu</string>
+    <string name="d_crypter">Décrypter</string>
+    <string name="message_envoyer">Message à envoyer</string>
+    <string name="encrypter_et_envoyer">Encrypter et Envoyer</string>
+    <string name="afficher_cl_rsa">Afficher clé RSA</string>
 </resources>
