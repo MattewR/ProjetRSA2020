@@ -62,16 +62,23 @@ public class MainActivity extends AppCompatActivity {
         // Inverser l'ordre de la liste binaire
         Collections.reverse(liste_binaire);
         System.out.println(liste_binaire);
+        System.out.println(liste_binaire.size());
+        double bk = 1;
 
         for (int i = 0; i < liste_binaire.size(); i++){
 
-
+            //            double C;
             String ak = liste_binaire.get(i);   // Element i de la liste
 
+            double _2k = Math.pow(2, i);
+            double b = Math.pow(C, _2k);
+            double _C_2k = b % n;
 
+            if (ak == "1") {
+                bk = bk * _C_2k % n;
+            }
         }
-
-        return 0;
+        return bk;
 
     }
 
