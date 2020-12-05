@@ -48,6 +48,34 @@
             android:gravity="center"
             android:text="@string/decrypter_rsa" />
 
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+        <EditText
+            android:id="@+id/IPInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="IP (Possibilité de loader avec le menu)"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/PortInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Port (Possibilité de loader avec le menu)"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/butConnecter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Se Connecter" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

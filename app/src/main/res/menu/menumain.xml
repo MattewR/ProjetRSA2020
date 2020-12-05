@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ipMenu"
+        android:title="@string/lire_ip_et_ou_port" />
+    <item
+        android:id="@+id/devClient"
+        android:title="@string/devenir_client_default" />
+    <item
+        android:id="@+id/devServeur"
+        android:title="@string/devenir_serveur" />
+</menu>

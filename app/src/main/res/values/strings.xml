@@ -7,4 +7,7 @@
     <string name="message_envoyer">Message à envoyer</string>
     <string name="encrypter_et_envoyer">Encrypter et Envoyer</string>
     <string name="afficher_cl_rsa">Afficher clé RSA</string>
+    <string name="lire_ip_et_ou_port">Loader l\'ancienne IP et l\'ancien port</string>
+    <string name="devenir_client_default">Devenir client (default)</string>
+    <string name="devenir_serveur">Devenir Serveur</string>
 </resources>
