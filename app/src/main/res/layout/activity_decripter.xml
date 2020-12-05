@@ -39,7 +39,7 @@
 
 
         <EditText
-            android:id="@+id/editTextNumber2"
+            android:id="@+id/editTextC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -56,7 +56,7 @@
             android:text="Entrer la valeur de D" />
 
         <EditText
-            android:id="@+id/editTextNumber3"
+            android:id="@+id/editTextD"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -73,14 +73,14 @@
             android:text="Entrer la valeur de N" />
 
         <EditText
-            android:id="@+id/editTextNumber"
+            android:id="@+id/editTextN"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="number" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/button_decrypter"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
