@@ -2,8 +2,12 @@ package com.example.projetrsa2020;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,75 +16,58 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private final int FROM_THIRD_ACTIVITY = 1;
+
+    private Button bouton_decrypter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Relier chaque element graphique dans le code
+        bouton_decrypter = findViewById(R.id.button2);
+
+
+        // Quand on click sur le bouton decrypter
+        bouton_decrypter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
+                Intent intent = new Intent(MainActivity.this, ThirdActivity.class);
+
+                // Ajoute les extras à transmettre
+                //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
+
+                // Créer l'activité avec un code de retour
+                startActivityForResult(intent, FROM_THIRD_ACTIVITY);
+            }
+        });
+
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        // D'où est-ce que je reviens?
+        switch (requestCode) {
+            case FROM_THIRD_ACTIVITY:
+                // Est-ce que tout c'est bien terminé?
+                if (resultCode == RESULT_OK) {
+                    // Je vais chercher les Extras disponibles dans l'Intent container "data".
+//                    String messageRetour = data.getStringExtra(SecondAct.RETURN_TEXT);
+//                    returnText.setText(messageRetour);
 
-
-    // Code 2 du projet de Math pour générer p et q (nombres premiers)
-
-    public ArrayList<Double> factorisation(int n){
-
-        ArrayList<Double> prime_numbers = new ArrayList<Double>();
-        double p = Math.floor(Math.sqrt(n));
-        double q;
-        double test = 0;
-
-        while  (p != 0){
-            test ++;
-            if (p % 2 != 0 || p == 2){
-                if (n % p == 0){
-                    q = (n/p);
-
-                    prime_numbers.add(p);
-                    prime_numbers.add(q);
                 }
-            }
+                break;
         }
-
-        return prime_numbers;
     }
 
-
-
-
-    // Code 3 du projet de Math pour générer tableau d'exponention modulaire
-
-    public double exponentiation_mod(double C, double d, double n){
-
-        // Convertir exposant en binaire
-        String binaire = Integer.toBinaryString((int) d);
-
-        List<String> liste_binaire = new ArrayList<String>(Arrays.asList(binaire.split("")));
-        System.out.println(liste_binaire);
-
-        // Inverser l'ordre de la liste binaire
-        Collections.reverse(liste_binaire);
-        System.out.println(liste_binaire);
-        System.out.println(liste_binaire.size());
-        double bk = 1;
-
-        for (int i = 0; i < liste_binaire.size(); i++){
-
-            //            double C;
-            String ak = liste_binaire.get(i);   // Element i de la liste
-
-            double _2k = Math.pow(2, i);
-            double b = Math.pow(C, _2k);
-            double _C_2k = b % n;
-
-            if (ak == "1") {
-                bk = bk * _C_2k % n;
-            }
-        }
-        return bk;
-
-    }
 
 
 

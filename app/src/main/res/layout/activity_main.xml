@@ -24,7 +24,7 @@
             android:layout_height="120dp"
             android:layout_gravity="bottom"
             android:gravity="center"
-            android:text="Bonjour!"
+            android:text="Menu"
             tools:ignore="MissingConstraints" />
 
         <Space
