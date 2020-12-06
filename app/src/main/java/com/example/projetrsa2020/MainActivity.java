@@ -38,10 +38,10 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
 
-    private final int FROM_THIRD_ACTIVITY = 1;
+    private final int FROM_SECOND_ACTIVITY = 1;
     public SocketConnection ptAcces;
     private boolean isClient = true;
-    private Button bouton_decrypter;
+    private Button bouton_communication_RSA;
     boolean connectez = false;
 
     public void start(final String port) {
@@ -92,24 +92,29 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Relier chaque element graphique dans le code
-        bouton_decrypter = findViewById(R.id.button2);
+        bouton_communication_RSA = findViewById(R.id.button_communication);
 
 
-        // Quand on click sur le bouton decrypter
-        bouton_decrypter.setOnClickListener(new View.OnClickListener() {
+        // Quand on click sur le bouton Communication RSA
+        bouton_communication_RSA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
-                Intent intent = new Intent(MainActivity.this, ThirdActivity.class);
+                Intent intent = new Intent(MainActivity.this, SecondAct.class);
 
                 // Ajoute les extras à transmettre
                 //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
 
                 // Créer l'activité avec un code de retour
-                startActivityForResult(intent, FROM_THIRD_ACTIVITY);
+                startActivityForResult(intent, FROM_SECOND_ACTIVITY);
             }
         });
+
+
+
+
+
 
         //Quand on click sur Se Connecter
         Button bouton_co =  findViewById(R.id.butConnecter);
@@ -188,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
         // D'où est-ce que je reviens?
         switch (requestCode) {
-            case FROM_THIRD_ACTIVITY:
+            case FROM_SECOND_ACTIVITY:
                 // Est-ce que tout c'est bien terminé?
                 if (resultCode == RESULT_OK) {
                     // Je vais chercher les Extras disponibles dans l'Intent container "data".

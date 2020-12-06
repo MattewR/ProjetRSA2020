@@ -22,7 +22,7 @@
             android:textSize="18sp" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/editTextmessage_recu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="12"
@@ -31,7 +31,7 @@
             android:inputType="textMultiLine" />
 
         <Button
-            android:id="@+id/bDecrypt"
+            android:id="@+id/buttonDecrypt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
@@ -48,7 +48,7 @@
             app:autoSizeTextType="none" />
 
         <EditText
-            android:id="@+id/editText3"
+            android:id="@+id/editText_message_crypter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="14"
@@ -57,17 +57,18 @@
             android:inputType="textMultiLine" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/button_encrypter_send"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="@string/encrypter_et_envoyer" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/button_affiche_cle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="@string/afficher_cl_rsa" />
+            android:text="@string/afficher_cl_rsa"
+            tools:ignore="InvalidId" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
