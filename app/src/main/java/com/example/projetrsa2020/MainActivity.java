@@ -1,11 +1,13 @@
 package com.example.projetrsa2020;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -31,21 +32,64 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private final int FROM_THIRD_ACTIVITY = 1;
-    public static SocketConnection ptAcces;
+    public SocketConnection ptAcces;
     private boolean isClient = true;
     private Button bouton_decrypter;
+    boolean connectez = false;
 
+    public void start(final String port) {
 
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ptAcces = new SocketConnection(port);
+                    while (!ptAcces.getConnectionstatusServer()) {
+                        ptAcces.accept();
+                    }
+                    connectez = true;
+                    Log.i("Creer",ptAcces.receiveMessage());
+                }
+                catch (NumberFormatException e) {
+                    throw e;
+                }
+                catch (NullPointerException e){
+                    throw e;
+                }
+            }
+        };
+        Thread serverThread = new Thread(serverTask);
+        serverThread.start();
+    }
+
+    public void start(final String port, final String ip) {
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+                ptAcces = new SocketConnection(ip, port);
+                ptAcces.updateClientStatus();
+            }
+        };
+        Thread serverThread = new Thread(serverTask);
+        serverThread.start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Relier chaque element graphique dans le code
         bouton_decrypter = findViewById(R.id.button2);
@@ -75,18 +119,23 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     String ip = (((EditText) findViewById(R.id.IPInput)).getText()).toString();
-                    String port = ((EditText) findViewById(R.id.IPInput)).getText().toString();
+                    String port = ((EditText) findViewById(R.id.PortInput)).getText().toString();
                     if ( isClient ) {
-                        ptAcces = new SocketConnection(ip, port);
+                        start(port, ip);
+                        ecrireToMem(ip,port);
                     }
                     else{
-                        ptAcces = new SocketConnection(port);
+                        start(port);
                     }
-                    ecrireToMem(ip,port);
+
                 }
-                catch (NumberFormatException e){
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
+                catch (NumberFormatException e) {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
                 }
+                catch (NullPointerException e){
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Erreur lors de la connection (Assurez-que le serveur est en marche)",Toast.LENGTH_SHORT).show();
+                }
+
 
 
             }
@@ -203,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return new String[0];
-
 
 
     }

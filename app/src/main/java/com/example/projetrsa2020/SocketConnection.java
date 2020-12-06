@@ -1,44 +1,47 @@
 package com.example.projetrsa2020;
-
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+
 
 public class SocketConnection extends Application {
 
     public SocketConnection(String port){
         try {
-            ServerSocket socketServer =  new ServerSocket(Integer.parseInt(port));
+            socketServer =  new ServerSocket(Integer.parseInt(port));
         } catch (IOException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
+
         }
         catch (NumberFormatException e){
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
+
         }
         socketClient = null;
 
     }
 
     public SocketConnection(String Host, String port){
+
+        socketClient = new Socket();
+
+
         try {
-            Socket socketClient = new Socket(InetAddress.getByName(Host), Integer.parseInt(port));
+            socketClient.connect(new InetSocketAddress(InetAddress.getByName(Host),Integer.parseInt(port)));
         } catch (IOException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
         }
-        catch (NumberFormatException e){
-            e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
-        }
+
+
         socketServer = null;
 
     }
@@ -64,7 +67,7 @@ public class SocketConnection extends Application {
 
         DataInputStream inputStream = null;
         try {
-            inputStream = new DataInputStream(socketClient.getInputStream());
+            inputStream = new DataInputStream(socketServerAccept.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +83,10 @@ public class SocketConnection extends Application {
 
         if(socketServer != null){
             try {
-                SocketServerAccept = socketServer.accept();
+                socketServerAccept = socketServer.accept();
+                if(socketServerAccept.isConnected()){
+                    isConnectedServer = true;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -97,12 +103,35 @@ public class SocketConnection extends Application {
         }
         try {
             socketServer.close();
+            socketServerAccept.close();
         }
         catch (IOException e){
             e.printStackTrace();
         }
     }
-    private Socket SocketServerAccept;
+
+    public void updateClientStatus(){
+        if (socketClient != null ){
+            isConnectedClient = socketClient.isConnected();
+        }
+        else{
+            Log.d("sf","gogogogo");
+        }
+    }
+
+
+
+     public boolean getConnectionstatusClient(){
+        return isConnectedClient;
+    }
+
+    public boolean getConnectionstatusServer(){
+        return isConnectedServer;
+    }
+
+    private boolean isConnectedClient = false;
+    private boolean isConnectedServer = false;
+    private Socket socketServerAccept;
     private Socket socketClient;
     private ServerSocket socketServer;
 
