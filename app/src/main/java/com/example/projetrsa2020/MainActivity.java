@@ -52,26 +52,63 @@ public class MainActivity extends AppCompatActivity {
      * Socket principal
      */
     private SocketConnection ptAcces;
-
+    /**
+     * est-ce un client
+     */
     private boolean isClient = true;
+    /**
+     * Les différents boutons
+     */
     private Button bouton_generer_codes;
+    /**
+     * Les différents boutons
+     */
     private Button bouton_communication_RSA;
+    /**
+     * Les différents boutons
+     */
     private Button boutonConnecter;
+    /**
+     * Suis=je connectez
+     */
     private boolean connectez = false;
+    /**
+     * Mes codes sont-ils générez?
+     */
     private boolean codesGenerez = false;
     private double publicKey;
     private double privateKey;
+    /**
+     * Message que le thread change
+     */
     private String message;
+    /**
+     * Thread pour la communication
+     */
     private Thread serverThread;
     private double n;
+    /**
+     * E et N dans RSA
+     * (Public keys)
+     */
     private String eEtN;
+    /**
+     * Inverse modulaire de e (private key)
+     */
     private String d;
 
-
+    /**
+     *
+     * @return Retourne ptAcces
+     */
     public SocketConnection getPtAcces() {
         return ptAcces;
     }
 
+    /**
+     * Change pt Acces
+     * @param ptAcces un objet SocketConnection
+     */
     public void setPtAcces(SocketConnection ptAcces) {
         this.ptAcces = ptAcces;
     }
@@ -102,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+        //Part le nouveau thread
         serverThread = new Thread(serverTask);
         serverThread.start();
     }
@@ -123,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+        //Part le nouveau thread
         serverThread = new Thread(serverTask);
         serverThread.start();
     }
@@ -148,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+        //Part le nouveau thread
         serverThread = new Thread(serverTask);
         serverThread.start();
     }
@@ -175,11 +215,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+        //Part le nouveau thread
         serverThread = new Thread(serverTask);
         serverThread.start();
 
     }
 
+    /**
+     * Ferme la SocketConnection
+     */
     public void ferme(){
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
@@ -260,27 +304,27 @@ public class MainActivity extends AppCompatActivity {
                 // -------------------------------------------------------
 
                 if (!isClient && connectez) {
+                    //Envoie les clés publique au client
                     send(eEtN);
                     try {
                         serverThread.join();
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
+                    //Change la couleur du bouton
                     bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
                     bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
                     codesGenerez = true;
                 } else if (connectez) {
+                    //Reçois les clés publiques
                     receive();
                     try {
                         serverThread.join();
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
-
+                    //Change la couleur du bouton et prépare l'information pour l'envoyer au client et à la prochaine activité
                     eEtN = message;
-
-                    //A enlever
-                    SocketConnection s =  socketHolder.getSockHold();
                     codesGenerez = true;
                     bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
                     bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
@@ -309,8 +353,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
                     // Ajoute les extras à transmettre
-                    //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
-                    // Transferer l'information a l'activite 2
+                    // Transfere l'information a l'activite 2
 
                     Intent intent = new Intent(MainActivity.this, SecondAct.class);
                     intent.putExtra("e_et_n", eEtN);
@@ -348,7 +391,9 @@ public class MainActivity extends AppCompatActivity {
                         if (connectez == false) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de se connecter", Toast.LENGTH_SHORT).show();
                         } else {
+                            //Écrite dans un fichier texte l'ip et le port pour qu'il soit récupérer plus tard par le client
                             ecrireToMem(ip, port,getApplicationContext());
+                            //Change les boutons de couleur et affiche au client que la connection est réussi
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
                             boutonConnecter.setBackgroundColor(getResources().getColor(R.color.vertPermis));
                             bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
@@ -359,6 +404,7 @@ public class MainActivity extends AppCompatActivity {
                         //S'assure que le thread ne continue pas après avoir call la connection
                         serverThread.join();
                         if (connectez) {
+                            //Change les boutons de couleur et affiche au serveur que la connection est réussi
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
                             boutonConnecter.setBackgroundColor(getResources().getColor(R.color.vertPermis));
                             bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
@@ -407,10 +453,10 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //Quel item a été sélect
+        //Permet de loader l'ip
         EditText premierEditText = (EditText) findViewById(R.id.IPInput);
         EditText deuxiemeEditText = (EditText) findViewById(R.id.PortInput);
-
+        //Fait une action en fonction de ce que l'utilisateur a choisi dans le menu
         switch (item.getItemId()) {
             case R.id.ipMenu:
                 String[] nouvPar = lireMem(getApplicationContext());
@@ -440,7 +486,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Quand on retourne de l'activité RSA
      * @param requestCode
      * @param resultCode
      * @param data
@@ -511,10 +557,12 @@ public class MainActivity extends AppCompatActivity {
 
 
             if ( fichierALire != null ) {
+                //Très inspirer de https://stackoverflow.com/a/14377185 CREATIVE COMMON LICENCE
                 InputStreamReader inputStreamReader = new InputStreamReader(fichierALire);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String information = "";
                 StringBuilder stringBuilder = new StringBuilder();
+                //Écrit l'information dans le fichier autant qu'il y en a
 
                 while ( (information = bufferedReader.readLine()) != null ) {
                     stringBuilder.append("\n").append(information);
