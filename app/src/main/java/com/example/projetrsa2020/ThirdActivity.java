@@ -1,4 +1,7 @@
-package com.example.projetrsa2020;
+
+
+//Inutile car on utilise pas cette partie la depuis le départ d'Émile
+/*package com.example.projetrsa2020;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -87,3 +90,4 @@ import java.util.List;
 
 
 }
+*/
