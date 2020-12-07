@@ -489,8 +489,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**Fonction pour generer un ArrayList de nombres premiers
-    ***/
+    /**
+     * Méthode qui permet de d'obtenir les nombres premiers entre 1 et 150
+     * @return un ArrayList de tous les nombres premiers entre 1 et 150
+     */
     private ArrayList<Double> prime() {
 
         ArrayList<Double> prime_number = new ArrayList<Double>();
@@ -517,7 +519,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Code 1 du projet de math pour calculer l'inverse modulaire
+
+    /**
+     * Méthode qui permet de calculer un inverse modulaire
+     * @param a coefficient de l'exposant -1
+     * @param d le modulo
+     * @return La valeur de l'inverse modulaire
+     */
     public Double euclide_etendue(double a, double d) {
         double r = a;
         double x = 1;

@@ -34,8 +34,11 @@ public class SecondAct extends AppCompatActivity {
     private String message;
 
 
-
-
+    /**
+     * Méthode qui permet de gérer plusieurs choses
+     * onClick pour lorsqu'il ya utilisation d'un bouton
+     * @param savedInstanceState Instance sauvé
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +53,12 @@ public class SecondAct extends AppCompatActivity {
 
 
 
-        // Quand on click sur le bouton encrypter et envoyer
+        /**
+         * Bouton Encrypter et Envoyer dans l'activité 2 pour l'utilisation du client:
+         * - Convertit le message écrit en base 36 puis en base 10 pour effectuer les calculs modulaires
+         * - Encrypte le message avec les clé recu
+         * - Envoie le message encrypté a serveur
+         */
         button_encrypter_send.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -114,6 +122,13 @@ public class SecondAct extends AppCompatActivity {
 
 
         // Quand on click sur le bouton decrypter
+        /**
+         *  Bouton décrypter dans l'activité du pour l'utilisation du serveur:
+         *  - Recoit le message encrypter par le client
+         *  - Décrypte le message
+         *  - Reconvertit le message en base 36 puis en string
+         *  - Affiche le message décrypter
+         */
         button_decrypter.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -169,9 +184,11 @@ public class SecondAct extends AppCompatActivity {
     }
 
 
-
-
-
+    /**
+     *
+     * @param bytes
+     * @return
+     */
     private int zeroPrefixLength(final byte[] bytes) {
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] != 0) {
@@ -182,7 +199,13 @@ public class SecondAct extends AppCompatActivity {
     }
 
 
-    // Code 3 du projet de Math pour générer tableau d'exponention modulaire
+    /**
+     * Méthode pour générer un tableau d'exponention modulaire qui encrypte et decrypte un message
+     * @param C message a encrypter ou decrypter
+     * @param d exposant (soit e pour chiffré ou d pour déchiffrer)
+     * @param n produit de p et q (le modulo dans l'équation)
+     * @return le message qui a ete encrypter ou decrypter
+     */
     public double exponentiation_mod(String C, double d, double n){
 
         // Convertir exposant en binaire
@@ -214,6 +237,10 @@ public class SecondAct extends AppCompatActivity {
     }
 
 
+    /**
+     * Permet de recevoir le prochain message par soit le serveur ou le client.
+     * Tout est fait sur un nouveau thread.
+     */
     public void receive() {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
@@ -236,6 +263,10 @@ public class SecondAct extends AppCompatActivity {
     }
 
 
+    /**
+     * Permet l'envoie du message peu importe si c'est le client ou le serveur qui l'envoie.
+     * @param message Le message souhaitant être envoyé.
+     */
     public void send(final String message) {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
