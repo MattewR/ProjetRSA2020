@@ -44,8 +44,15 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Vient de ou
+     */
     private final int FROM_SECOND_ACTIVITY = 1;
-    public SocketConnection ptAcces;
+    /**
+     * Socket principal
+     */
+    private SocketConnection ptAcces;
+
     private boolean isClient = true;
     private Button bouton_generer_codes;
     private Button bouton_communication_RSA;
@@ -59,6 +66,15 @@ public class MainActivity extends AppCompatActivity {
     private double n;
     private String eEtN;
     private String d;
+
+
+    public SocketConnection getPtAcces() {
+        return ptAcces;
+    }
+
+    public void setPtAcces(SocketConnection ptAcces) {
+        this.ptAcces = ptAcces;
+    }
 
     /**
      * Créer le serveur et commence tout de suite à accepter la prochaine connection
@@ -164,6 +180,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void ferme(){
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ptAcces.close();
+
+                } catch (NumberFormatException e) {
+                    throw e;
+                } catch (NullPointerException e) {
+                    throw e;
+                }
+            }
+        };
+        serverThread = new Thread(serverTask);
+        serverThread.start();
+    }
+
     /**
      * Fonction principal permettant bien des choses:
      * Les OnClick pour les boutons
@@ -176,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().setTitle("Messagerie Recevoir-Sans-Agent");
-
         // Relier chaque element graphique dans le code
         bouton_generer_codes = findViewById(R.id.button_generer_codes);
         bouton_communication_RSA = findViewById(R.id.button_communication);
@@ -190,9 +226,11 @@ public class MainActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View view) {
-
+                if(connectez){
+                    socketHolder.setSockHold(ptAcces);
+                }
                 //   --------------------- Generer les cles RSA a envoyer --------------------------
-                if(connectez) {
+                if(connectez && !isClient) {
                     // ArrayList de nombre premiers
                     ArrayList<Double> prime_numbers = prime();
 
@@ -241,9 +279,8 @@ public class MainActivity extends AppCompatActivity {
 
                     eEtN = message;
 
-
-
-
+                    //A enlever
+                    SocketConnection s =  socketHolder.getSockHold();
                     codesGenerez = true;
                     bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
                     bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
@@ -258,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Quand on click sur le bouton Communication RSA
         bouton_communication_RSA.setOnClickListener(new View.OnClickListener() {
+
             @Override
             /**
              * Permet de changer d'activité si seulement l'utilisateur est connecté et à les codes.
@@ -268,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 //Enlevez le true quand l'app va marcher
 
                 if (connectez && codesGenerez) {
+
                     // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
                     // Ajoute les extras à transmettre
                     //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
@@ -276,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, SecondAct.class);
                     intent.putExtra("e_et_n", eEtN);
                     intent.putExtra("d", d);
-                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
                     intent.putExtra("isclient", isClient);
                     intent.putExtra("isConnecter", connectez);
 
@@ -390,6 +428,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.devServeur:
                 isClient = false;
                 premierEditText.setFocusable(false);
+                return true;
+
+            case  R.id.ferme:
+                ferme();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

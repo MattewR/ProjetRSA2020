@@ -23,7 +23,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SecondAct extends AppCompatActivity {
-
+    //Vérifie que quand t'envoie un message il est good
+    //Vérifie que l'utilisateur n"envoie pas rien
+    //Empeche le serveur de clicker envoyer et le client de décrypter
+    //Rend sa intuitif
     private EditText message_recu;
     private EditText message_a_encrypter;
     private Button button_encrypter_send;
@@ -50,6 +53,15 @@ public class SecondAct extends AppCompatActivity {
         button_encrypter_send = findViewById(R.id.button_encrypter_send);
         message_recu = findViewById(R.id.editTextmessage_recu);
         button_decrypter = findViewById(R.id.buttonDecrypt);
+        // Aller chercher les valeurs generer des cles
+        Intent intent = getIntent();
+
+        final String e_et_n = intent.getStringExtra("e_et_n");
+        final Boolean isClient = intent.getBooleanExtra("isclient", true);
+        final Boolean connectez = intent.getBooleanExtra("isConnecter", true);
+        final String d = intent.getStringExtra("d");
+        final String[] parts = e_et_n.split("_");
+        final String n = parts[1];
 
 
 
@@ -68,13 +80,9 @@ public class SecondAct extends AppCompatActivity {
                 // ---------------------- Encrypter le message et l'envoyer ------------------------
 
 
-                // Aller chercher les valeurs generer des cles
-                Intent intent = getIntent();
-                getIntent().getSerializableExtra("SocketConnection");
-                String e_et_n = intent.getStringExtra("e_et_n");
-                Boolean isClient = intent.getBooleanExtra("isclient", true);
-                Boolean connectez = intent.getBooleanExtra("isConnecter", true);
 
+
+                ptAcces = socketHolder.getSockHold();
 
                 if (isClient){
                     String message = message_a_encrypter.getText().toString();
@@ -106,8 +114,10 @@ public class SecondAct extends AppCompatActivity {
                     // ***********************************************************
                     //              Envoyer au serveur message encrypter
                     // ***********************************************************
-
-                    send(message_crypter.toString());
+                    //TIHASGDHOAISGHDID Envoie tu le bon message?
+                    if(isClient) {
+                        send(message_crypter.toString());
+                    }
                     try {
                         serverThread.join();}
                     catch (InterruptedException ex) {
@@ -143,29 +153,23 @@ public class SecondAct extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                ptAcces =  socketHolder.getSockHold();
 
-                // Aller chercher les valeurs generer des cles
-                Intent intent = getIntent();
-                getIntent().getSerializableExtra("SocketConnection");
-                Boolean isClient = intent.getBooleanExtra("isclient", true);
-                Boolean connectez = intent.getBooleanExtra("isConnecter", true);
-                String e_et_n = intent.getStringExtra("e_et_n");
-                String d = intent.getStringExtra("d");
-                String[] parts = e_et_n.split("_");
-                String n = parts[1];
 
                 // ******************************************************************
                 //                   Recevoir le message encrypte
                 // ******************************************************************
 
                 if (!isClient) {
+                    //Toast reçu
                     receive();
+
                     try {
                         serverThread.join();
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();}
                 }
-
+                //toast message recu
 
 
                 // --------------------------- Decrypter le message --------------------------------

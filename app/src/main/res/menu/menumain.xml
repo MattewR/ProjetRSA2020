@@ -10,4 +10,7 @@
     <item
         android:id="@+id/devServeur"
         android:title="@string/devenir_serveur" />
+    <item
+        android:id="@+id/ferme"
+        android:title="Fermer la connection" />
 </menu>

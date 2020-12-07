@@ -21,7 +21,12 @@ import java.net.SocketTimeoutException;
  * Permet de faciliter l'implémentation des communications par socket
  * Chaque objet contient les outils nécessaire pour devenir un serveur ou un client
  */
-public class SocketConnection extends Application implements Serializable {
+public class SocketConnection extends Application {
+
+    public SocketConnection(){
+        socketClient = null;
+        socketServer = null;
+    }
     /**
      * Créer un serveur socket
      * @param port le port que le socket regarde/attend la connection de
@@ -153,14 +158,6 @@ public class SocketConnection extends Application implements Serializable {
         }
     }
 
-    public void updateClientStatus() {
-        if (socketClient.isConnected()) {
-            isConnectedClient = true;
-        }
-        else{
-            isConnectedClient = false;
-        }
-    }
 
 
     public boolean getConnectionstatusClient() {
