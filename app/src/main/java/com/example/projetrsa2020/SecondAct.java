@@ -23,14 +23,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SecondAct extends AppCompatActivity {
-    //Vérifie que quand t'envoie un message il est good
-    //Vérifie que l'utilisateur n"envoie pas rien
-    //Empeche le serveur de clicker envoyer et le client de décrypter
-    //Rend sa intuitif
+
+
     private EditText message_recu;
     private EditText message_a_encrypter;
     private Button button_encrypter_send;
     private Button button_decrypter;
+    private  Button button_afficher_cle;
     private Thread serverThread;
     private boolean codesGenerez = false;
     public SocketConnection ptAcces;
@@ -53,6 +52,10 @@ public class SecondAct extends AppCompatActivity {
         button_encrypter_send = findViewById(R.id.button_encrypter_send);
         message_recu = findViewById(R.id.editTextmessage_recu);
         button_decrypter = findViewById(R.id.buttonDecrypt);
+        button_afficher_cle = findViewById(R.id.button_affiche_cle);
+
+
+
         // Aller chercher les valeurs generer des cles
         Intent intent = getIntent();
 
@@ -84,52 +87,61 @@ public class SecondAct extends AppCompatActivity {
 
                 ptAcces = socketHolder.getSockHold();
 
-                if (isClient){
+                if (isClient) {
+
+                    // Empecher le client de clicker sur le bouton decrypter
+                    button_decrypter.setClickable(false);
+
                     String message = message_a_encrypter.getText().toString();
-                    System.out.println("Message: " + message);
+                    if (message.length() != 0) {
+
+                        System.out.println("Message: " + message);
 
 
-                    // Convertir le message en base 36
-                    byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
-                    String message_base36 = new BigInteger(1, bytes).toString(36);
-                    System.out.println("Message Base 36: " + message_base36);
+                        // Convertir le message en base 36
+                        byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+                        String message_base36 = new BigInteger(1, bytes).toString(36);
+                        System.out.println("Message Base 36: " + message_base36);
 
 
-                    // Convertir la base 36 en base 10
-                    String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
-                    System.out.println("Message Base 10: " + message_base10);
+                        // Convertir la base 36 en base 10
+                        String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
+                        System.out.println("Message Base 10: " + message_base10);
 
 
-                    String[] parts = e_et_n.split("_");
-                    String e = parts[0];
-                    String n = parts[1];
+                        String[] parts = e_et_n.split("_");
+                        String e = parts[0];
+                        String n = parts[1];
 
 
-                    // Code 3 du projet de math pour chiffrer M --> C
-                    Double message_crypter = exponentiation_mod(message_base10, Double.parseDouble(e), Double.parseDouble(n));
-                    System.out.println("Message Encrypter: " + message_crypter);
+                        // Chiffrer le message
+                        Integer message_crypter = exponentiation_modulaire(Integer.parseInt(message_base10), Integer.parseInt(e), Integer.parseInt(n));
+                        System.out.println("Message Encrypter: " + message_crypter);
 
 
+                        // ***********************************************************
+                        //              Envoyer au serveur message encrypter
+                        // ***********************************************************
 
-                    // ***********************************************************
-                    //              Envoyer au serveur message encrypter
-                    // ***********************************************************
-                    //TIHASGDHOAISGHDID Envoie tu le bon message?
-                    if(isClient) {
-                        send(message_crypter.toString());
+                        if (isClient) {
+                            send(message_crypter.toString());
+                        }
+                        try {
+                            serverThread.join();
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        // Si c'est le serveur --> empecher de clicker sur encrypter et envoyer
+                        button_encrypter_send.setClickable(false);
                     }
-                    try {
-                        serverThread.join();}
-                    catch (InterruptedException ex) {
-                        ex.printStackTrace();}
                 }
 
 
-
-
-
-
-
+                // Empecher d'avoir un message vide
+                else {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Le message doit contenir du texte", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -161,7 +173,7 @@ public class SecondAct extends AppCompatActivity {
                 // ******************************************************************
 
                 if (!isClient) {
-                    //Toast reçu
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Toast recu!", Toast.LENGTH_SHORT).show();
                     receive();
 
                     try {
@@ -169,13 +181,14 @@ public class SecondAct extends AppCompatActivity {
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();}
                 }
-                //toast message recu
+                new Toast(getApplicationContext()).makeText(getApplicationContext(), "Message recu!", Toast.LENGTH_SHORT).show();
+
 
 
                 // --------------------------- Decrypter le message --------------------------------
 
                 // Decrypter le message en base 10 avec un tableau d'exponentiation modulaire
-                double message_decrypter = exponentiation_mod(message, Double.parseDouble(d),  Double.parseDouble(n));
+                int message_decrypter = exponentiation_modulaire(Integer.parseInt(message), Integer.parseInt(d),  Integer.parseInt(n));
 
 
                 // Reconvertir le message vers la base 36 en String
@@ -193,6 +206,30 @@ public class SecondAct extends AppCompatActivity {
 
             }
         });
+
+
+        /**
+         * Si on click sur le bouton pour afficher les clé ont fait apparaitre un Toast
+         * de la valeur des clées
+         */
+        button_afficher_cle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String[] parts = e_et_n.split("_");
+                String e = parts[0];
+                String n = parts[1];
+
+                new Toast(getApplicationContext()).makeText(getApplicationContext(), "e: "+e + "n: "+n, Toast.LENGTH_SHORT).show();
+
+
+
+
+
+            }
+        });
+
+
 
     }
 
@@ -213,41 +250,30 @@ public class SecondAct extends AppCompatActivity {
 
 
     /**
-     * Méthode pour générer un tableau d'exponention modulaire qui encrypte et decrypte un message
+     * Méthode pour calculer l'exponention modulaire neccessaire pour encrypter et decrypter un message
+     * Le pseudo-code de l'algorithme à été présenté dans le cours de Math Discrète
      * @param C message a encrypter ou decrypter
-     * @param d exposant (soit e pour chiffré ou d pour déchiffrer)
+     * @param exp exposant (soit e pour chiffré ou d pour déchiffrer)
      * @param n produit de p et q (le modulo dans l'équation)
      * @return le message qui a ete encrypter ou decrypter
      */
-    public double exponentiation_mod(String C, double d, double n){
+    public int  exponentiation_modulaire(int C, int exp, int n) {
+        long x=1;
+        long y=C;
 
-        // Convertir exposant en binaire
-        String binaire = Integer.toBinaryString((int) d);
+        // Tant que la valeur de l'exposant est sup a 0
+        while (exp > 0){
 
-        List<String> liste_binaire = new ArrayList<String>(Arrays.asList(binaire.split("")));
-        System.out.println(liste_binaire);
+            if (exp%2 == 1){
+                x = (x*y) % n;}
 
-        // Inverser l'ordre de la liste binaire
-        Collections.reverse(liste_binaire);
-        System.out.println(liste_binaire);
-        System.out.println(liste_binaire.size());
-        double bk = 1;
-
-        for (int i = 0; i < liste_binaire.size(); i++) {
-
-            //            double C;
-            String ak = liste_binaire.get(i);   // Element i de la liste
-
-            double _2k = Math.pow(2, i);
-            double b = Math.pow(Integer.parseInt(C), _2k);
-            double _C_2k = b % n;
-
-            if (ak == "1") {
-                bk = bk * _C_2k % n;
-            }
+            y = (y*y)%n; // Mettre la base au carre
+            exp /= 2;
         }
-        return bk;
+
+        return (int) x % n;
     }
+
 
 
     /**
