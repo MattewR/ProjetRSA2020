@@ -25,14 +25,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="8"
             android:autoText="false"
-            android:fontFamily="sans-serif-black"
-            android:gravity="center|fill|top"
-            android:paddingLeft="2pt"
-            android:paddingTop="1pt"
-            android:paddingRight="2pt"
+            android:fontFamily="@font/nova_flat"
+            android:gravity="center|top|fill_vertical"
             android:text="@string/FbiProtection"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@android:color/holo_blue_dark"
+            android:textColor="@android:color/black"
             android:textSize="16sp"
             app:autoSizeTextType="uniform" />
 
@@ -40,7 +37,13 @@
             android:id="@+id/button_generer_codes"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_margin="1pt"
             android:layout_weight="4"
+            android:padding="1pt"
+            android:paddingLeft="1pt"
+            android:paddingTop="1pt"
+            android:paddingRight="1pt"
+            android:paddingBottom="1pt"
             android:text="@string/generer_les_codes_rsa" />
 
         <Space
@@ -52,8 +55,14 @@
             android:id="@+id/button_communication"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_margin="1pt"
             android:layout_weight="4"
             android:gravity="center"
+            android:padding="1pt"
+            android:paddingLeft="1pt"
+            android:paddingTop="1pt"
+            android:paddingRight="1pt"
+            android:paddingBottom="1pt"
             android:text="@string/decrypter_rsa" />
 
         <TextView
@@ -90,7 +99,13 @@
             android:id="@+id/butConnecter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="1pt"
             android:layout_weight="6"
+            android:padding="1pt"
+            android:paddingLeft="1pt"
+            android:paddingTop="1pt"
+            android:paddingRight="1pt"
+            android:paddingBottom="1pt"
             android:text="Se Connecter / Hoster le serveur" />
 
     </LinearLayout>

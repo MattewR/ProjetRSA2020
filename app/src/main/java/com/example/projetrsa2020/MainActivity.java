@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.StrictMode;
@@ -17,13 +18,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,54 +45,25 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private final int FROM_SECOND_ACTIVITY = 1;
     public SocketConnection ptAcces;
     private boolean isClient = true;
     private Button bouton_generer_codes;
     private Button bouton_communication_RSA;
+    private Button boutonConnecter;
     private boolean connectez = false;
     private boolean codesGenerez = false;
     private double publicKey;
     private double privateKey;
     private String message;
     private Thread serverThread;
-
-    public double getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(double publicKey) {
-        this.publicKey = publicKey;
-    }
-
-    public double getPrivateKey() {
-        return privateKey;
-    }
-
-    public void setPrivateKey(double privateKey) {
-        this.privateKey = privateKey;
-    }
-
-    public double getN() {
-        return n;
-    }
-
-    public void setN(double n) {
-        this.n = n;
-    }
-
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     private double n;
 
+    /**
+     * Créer le serveur et commence tout de suite à accepter la prochaine connection
+     * À cause des restrtictions Android, tout est fait dans un nouveau thread.
+     * @param port Le port du serveur
+     */
     public void start(final String port) {
 
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
@@ -110,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
         serverThread.start();
     }
 
+    /**
+     * Créer le socket pour le client et connecte celui-ci au serveur.
+     * Tout est fait sur un nouveau thread.
+     * @param port Port de destination
+     * @param ip Ip de destination
+     */
     public void start(final String port, final String ip) {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
         Runnable serverTask = new Runnable() {
@@ -124,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
         serverThread.start();
     }
 
+    /**
+     * Permet de recevoir le prochain message par soit le serveur ou le client.
+     * Tout est fait sur un nouveau thread.
+     */
     public void receive() {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
@@ -145,6 +132,10 @@ public class MainActivity extends AppCompatActivity {
         serverThread.start();
     }
 
+    /**
+     * Permet l'envoie du message peu importe si c'est le client ou le serveur qui l'envoie.
+     * @param message Le message souhaitant être envoyé.
+     */
     public void send(final String message) {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
@@ -167,11 +158,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Fonction principal permettant bien des choses:
+     * Les OnClick pour les boutons
+     * Change le titre de l'action bar
+     * Change la couleur des boutons
+     * @param savedInstanceState Instance sauvé
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        getSupportActionBar().setTitle("Messagerie Recevoir-Sans-Agent");
 
         // Relier chaque element graphique dans le code
         bouton_generer_codes = findViewById(R.id.button_generer_codes);
@@ -180,6 +178,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Quand on clisk sur le bouton Generer les codes RSA
         bouton_generer_codes.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Génère les clé RSA et envoie la clé publique au client
+             * @param view Vue sur laquelle le bouton est
+             */
             @Override
             public void onClick(View view) {
 
@@ -218,6 +220,8 @@ public class MainActivity extends AppCompatActivity {
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
+                    bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
+                    bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
                     codesGenerez = true;
                 } else if (connectez) {
                     receive();
@@ -228,6 +232,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     String eEtN = message;
                     codesGenerez = true;
+                    bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
+                    bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
                 } else {
                     new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez-vous connectez avant", Toast.LENGTH_SHORT).show();
                     codesGenerez = false;
@@ -240,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
         // Quand on click sur le bouton Communication RSA
         bouton_communication_RSA.setOnClickListener(new View.OnClickListener() {
             @Override
+            /**
+             * Permet de changer d'activité si seulement l'utilisateur est connecté et à les codes.
+             */
             public void onClick(View view) {
 
                 //Part la nouvelle activité si et seulement si les codes ont été générer pour le serveur et si le client ou le serveur sont connectez
@@ -261,9 +270,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Quand on click sur Se Connecter
-        Button bouton_co = findViewById(R.id.butConnecter);
-        bouton_co.setOnClickListener(new View.OnClickListener() {
+        boutonConnecter = findViewById(R.id.butConnecter);
+        boutonConnecter.setOnClickListener(new View.OnClickListener() {
             @Override
+            /**
+             * Initialise la connection avec Start.
+             */
             public void onClick(View view) {
 
                 try {
@@ -272,8 +284,8 @@ public class MainActivity extends AppCompatActivity {
                     if (isClient) {
                         start(port, ip);
                         serverThread.join();
-                        ecrireToMem(ip, port);
-                        if (ptAcces.getConnectionstatusClient() == false) {
+                        ecrireToMem(ip, port,getApplicationContext());
+                        if (connectez == false) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de se connecter", Toast.LENGTH_SHORT).show();
                         } else {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
@@ -285,7 +297,8 @@ public class MainActivity extends AppCompatActivity {
                         serverThread.join();
                         if (connectez) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
-                            new Toast(getApplicationContext()).makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            boutonConnecter.setBackgroundColor(getResources().getColor(R.color.vertPermis));
+                            bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
                         }
                         else{
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Erreur lors de la connection (Connexion à pris trop de temps)", Toast.LENGTH_SHORT).show();
@@ -306,10 +319,17 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
+        //Change la couleur des boutons
+        boutonConnecter.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
+        bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.rougeAlarme));
+        bouton_communication_RSA.setBackgroundColor(getResources().getColor(R.color.rougeAlarme));
     }
 
+    /**
+     * Génère le menu
+     * @param menu Menu à rajouté à l'action bar
+     * @return Retourne si ça marché ou pas (Bool)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -317,6 +337,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Indique au programme quoi faire
+     * @param item Quel item à été clické
+     * @return Retourne si ça marché ou pas
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Quel item a été sélect
@@ -325,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.ipMenu:
-                String[] nouvPar = lireMem();
+                String[] nouvPar = lireMem(getApplicationContext());
                 if (nouvPar.length != 2) {
                     new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
                 } else {
@@ -346,7 +371,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -365,18 +395,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean ecrireToMem(String ip, String port) {
-        FileOutputStream fichierAEcrire;
+    /**
+     * Permet d'écrire dans un fichier txt l'ip et le port. Ceux-ci pourront ensuite être récuppérer par liremem.
+     * @param ip l'ip à écrire
+     * @param port le port à écrire
+     * @param contexte le contexte
+     * @return
+     */
+    private boolean ecrireToMem(String ip, String port, Context contexte) {
+
         try {
-            fichierAEcrire = openFileOutput("stockageIpPort.txt", MODE_PRIVATE);
+            OutputStreamWriter fichierAEcrire = new OutputStreamWriter(contexte.openFileOutput("stockageIpPort.txt", contexte.MODE_PRIVATE));
             try {
-                fichierAEcrire.write((ip.concat("_" + port)).getBytes());
+                fichierAEcrire.write((ip.concat("_" + port)));
+
             } catch (NullPointerException e) {
                 new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
+            } finally {
+                fichierAEcrire.close();
             }
-            fichierAEcrire.close();
+        }
 
-        } catch (FileNotFoundException e) {
+         catch (FileNotFoundException e) {
             e.printStackTrace();
             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
             return false;
@@ -389,27 +429,41 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String[] lireMem() {
-
+    /**
+     * Lit le fichier stockageIpPort.txt qui contient l'ip et le port et le load dans les edit Text correspondant.
+     * @param contexte
+     * @return
+     */
+    private String[] lireMem(Context contexte) {
+        String aLire = "";
         try {
-            FileInputStream fichierAEcrire = new FileInputStream("stockageIpPort.txt");
-            ObjectInputStream ois = new ObjectInputStream(fichierAEcrire);
-            try {
-                String[] aRetourne = String.valueOf(ois.readByte()).split("_");
-                fichierAEcrire.close();
-                return aRetourne;
-            } catch (NullPointerException e) {
-                new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
+            InputStream fichierALire = contexte.openFileInput("stockageIpPort.txt");
+
+
+
+            if ( fichierALire != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(fichierALire);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String information = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (information = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append("\n").append(information);
+                }
+
+                fichierALire.close();
+                aLire = stringBuilder.toString();
             }
+            return aLire.split("_");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de lire (fichier pas trouvé)", Toast.LENGTH_SHORT).show();
 
 
         } catch (IOException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de lire", Toast.LENGTH_SHORT).show();
 
         }
 
@@ -419,8 +473,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Fonction pour generer un ArrayList de nombres premiers
-
+    /**Fonction pour generer un ArrayList de nombres premiers
+    ***/
     private ArrayList<Double> prime() {
 
         ArrayList<Double> prime_number = new ArrayList<Double>();

@@ -2,6 +2,7 @@ package com.example.projetrsa2020;
 
 import android.app.Application;
 import android.content.Context;
+import android.nfc.FormatException;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -14,7 +15,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-
+/**
+ * @author Mathis
+ */
 public class SocketConnection extends Application {
 
     public SocketConnection(String port) {
@@ -40,7 +43,11 @@ public class SocketConnection extends Application {
 
         try {
             socketClient.connect(new InetSocketAddress(InetAddress.getByName(Host), Integer.parseInt(port)));
-        } catch (IOException e) {
+        }
+        catch (NumberFormatException e){
+            e.printStackTrace();
+        }
+        catch (IOException e) {
             e.printStackTrace();
 
         }
@@ -134,8 +141,11 @@ public class SocketConnection extends Application {
     }
 
     public void updateClientStatus() {
-        if (socketClient != null) {
-            isConnectedClient = socketClient.isConnected();
+        if (socketClient.isConnected()) {
+            isConnectedClient = true;
+        }
+        else{
+            isConnectedClient = false;
         }
     }
 
