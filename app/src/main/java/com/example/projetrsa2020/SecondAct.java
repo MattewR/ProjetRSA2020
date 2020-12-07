@@ -28,7 +28,8 @@ public class SecondAct extends AppCompatActivity {
     private EditText message_a_encrypter;
     private Button button_encrypter_send;
     private Button button_decrypter;
-
+    private SocketConnection ptAcces;
+    private Thread serverThread;
 
 
 
@@ -75,7 +76,7 @@ public class SecondAct extends AppCompatActivity {
 
                 // Aller chercher les valeurs generer des cles
                 Intent intent = getIntent();
-                getIntent().getSerializableExtra("SocketConnection");
+                ptAcces = getIntent().getSerializableExtra("SocketConnection");
                 String e_et_n = intent.getStringExtra("e_et_n");
 
                 String[] parts = e_et_n.split("_");
@@ -93,7 +94,7 @@ public class SecondAct extends AppCompatActivity {
                 // **  Envoyer au serveur message encrypter
                 // ***********************************************************
 
-                if (!isClient && connectez) {
+                if (!isClient) {
                     send(String.valueOf(e) + "_" + String.valueOf(n));
                     try {
                         serverThread.join();
@@ -101,7 +102,7 @@ public class SecondAct extends AppCompatActivity {
                         ex.printStackTrace();
                     }
                     codesGenerez = true;
-                } else if (connectez) {
+                } else {
                     receive();
                     try {
                         serverThread.join();
@@ -120,9 +121,6 @@ public class SecondAct extends AppCompatActivity {
                     startActivityForResult(intent, FROM_SECOND_ACTIVITY);
 
                     codesGenerez = true;
-                } else {
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez-vous connectez avant", Toast.LENGTH_SHORT).show();
-                    codesGenerez = false;
                 }
 
 
