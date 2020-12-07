@@ -81,7 +81,7 @@ public class SecondAct extends AppCompatActivity {
                 String base_36 = Integer.toString(Integer.parseInt(String.valueOf(message_crypter), 10), 36);
 
                 // Decoder la base 36 en String
-                byte[] bytes = new BigInteger(base_36, 36).toByteArray();
+                bytes = new BigInteger(base_36, 36).toByteArray();
                 int zeroPrefixLength = zeroPrefixLength(bytes);
                 String string_decrypter = new String(bytes, zeroPrefixLength, bytes.length-zeroPrefixLength, StandardCharsets.UTF_8);
 

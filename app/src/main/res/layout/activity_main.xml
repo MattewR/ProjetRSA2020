@@ -26,16 +26,15 @@
             android:layout_weight="8"
             android:autoText="false"
             android:fontFamily="sans-serif-black"
-            android:gravity="center|top"
+            android:gravity="center|fill|top"
+            android:paddingLeft="2pt"
+            android:paddingTop="1pt"
+            android:paddingRight="2pt"
             android:text="@string/FbiProtection"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="16sp"
             app:autoSizeTextType="uniform" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="80dp" />
 
         <Button
             android:id="@+id/button_generer_codes"
@@ -45,7 +44,7 @@
             android:text="@string/generer_les_codes_rsa" />
 
         <Space
-            android:id="@+id/FbiProtection"
+            android:id="@+id/Espace1"
             android:layout_width="match_parent"
             android:layout_height="20dp" />
 
@@ -64,6 +63,7 @@
             android:layout_weight="2"
             android:gravity="center"
             android:text="Entrez les informations pour commencer la communication privé:"
+            android:textSize="18sp"
             android:textStyle="italic" />
 
         <EditText

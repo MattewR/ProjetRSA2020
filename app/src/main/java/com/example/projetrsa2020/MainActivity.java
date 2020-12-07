@@ -1,6 +1,7 @@
 package com.example.projetrsa2020;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private final int FROM_SECOND_ACTIVITY = 1;
     public SocketConnection ptAcces;
     private boolean isClient = true;
-    private  Button bouton_generer_codes;
+    private Button bouton_generer_codes;
     private Button bouton_communication_RSA;
     private boolean connectez = false;
     private boolean codesGenerez = false;
@@ -97,11 +99,9 @@ public class MainActivity extends AppCompatActivity {
                     ptAcces = new SocketConnection(port);
                     ptAcces.accept();
                     connectez = true;
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     throw e;
-                }
-                catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     throw e;
                 }
             }
@@ -117,13 +117,14 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 ptAcces = new SocketConnection(ip, port);
                 ptAcces.updateClientStatus();
+                connectez = true;
             }
         };
         serverThread = new Thread(serverTask);
         serverThread.start();
     }
 
-    public void receive(){
+    public void receive() {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
         Runnable serverTask = new Runnable() {
@@ -133,11 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     message = ptAcces.receiveMessage();
 
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     throw e;
-                }
-                catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     throw e;
                 }
             }
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         serverThread.start();
     }
 
-    public void send(final String message){
+    public void send(final String message) {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
         Runnable serverTask = new Runnable() {
@@ -156,11 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     ptAcces.sendMessage(message);
 
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     throw e;
-                }
-                catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     throw e;
                 }
             }
@@ -181,8 +178,6 @@ public class MainActivity extends AppCompatActivity {
         bouton_communication_RSA = findViewById(R.id.button_communication);
 
 
-
-
         // Quand on clisk sur le bouton Generer les codes RSA
         bouton_generer_codes.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,16 +191,16 @@ public class MainActivity extends AppCompatActivity {
                 // Generer aleatoirement n (n = p x q)
                 int min = 0;
                 int max = prime_numbers.size();
-                double index_p = Math.random() * (max-min+1) + min;
-                double index_q = Math.random() * (max-min+1) + min;
+                double index_p = Math.random() * (max - min + 1) + min;
+                double index_q = Math.random() * (max - min + 1) + min;
                 double p = prime_numbers.get((int) index_p);
                 double q = prime_numbers.get((int) index_q);
-                double n = p*q;
+                double n = p * q;
 
 
                 // Generer e qui est copremier avec (𝑝 − 1)(𝑞 − 1)
-                double coprime = (p-1)*(q-1);
-                double e = coprime-1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
+                double coprime = (p - 1) * (q - 1);
+                double e = coprime - 1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
 
 
                 // Calculer d --> Inverse modulaire e mod (p-1)(q-1)
@@ -216,14 +211,30 @@ public class MainActivity extends AppCompatActivity {
                 // -------------------------------------------------------
                 //                    Envoyer e + n
                 // -------------------------------------------------------
-
+                if (!isClient && connectez) {
+                    send(String.valueOf(e) + "_" + String.valueOf(n));
+                    try {
+                        serverThread.join();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    codesGenerez = true;
+                } else if (connectez) {
+                    receive();
+                    try {
+                        serverThread.join();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    String eEtN = message;
+                    codesGenerez = true;
+                } else {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez-vous connectez avant", Toast.LENGTH_SHORT).show();
+                    codesGenerez = false;
+                }
 
             }
         });
-
-
-
-
 
 
         // Quand on click sur le bouton Communication RSA
@@ -233,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Part la nouvelle activité si et seulement si les codes ont été générer pour le serveur et si le client ou le serveur sont connectez
                 //Enlevez le true quand l'app va marcher
-                if(connectez && codesGenerez || true) {
+                if (connectez && codesGenerez) {
                     // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
                     Intent intent = new Intent(MainActivity.this, SecondAct.class);
 
@@ -242,13 +253,15 @@ public class MainActivity extends AppCompatActivity {
 
                     // Créer l'activité avec un code de retour
                     startActivityForResult(intent, FROM_SECOND_ACTIVITY);
+                } else {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Assurez-vous d'être connecter et de générez les clés avant d'accéder a l'application principal", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
 
         //Quand on click sur Se Connecter
-        Button bouton_co =  findViewById(R.id.butConnecter);
+        Button bouton_co = findViewById(R.id.butConnecter);
         bouton_co.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -256,45 +269,43 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String ip = (((EditText) findViewById(R.id.IPInput)).getText()).toString();
                     String port = ((EditText) findViewById(R.id.PortInput)).getText().toString();
-                    if ( isClient ) {
+                    if (isClient) {
                         start(port, ip);
                         serverThread.join();
-                        ecrireToMem(ip,port);
-                        if (ptAcces.getConnectionstatusClient() == false){
+                        ecrireToMem(ip, port);
+                        if (ptAcces.getConnectionstatusClient() == false) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de se connecter", Toast.LENGTH_SHORT).show();
-                        }
-                        else{
+                        } else {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
                             connectez = true;
-                            send("IT WORKED BOYYYYYYYYYYYYYY");
+
                         }
-                    }
-                    else{
+                    } else {
                         start(port);
                         serverThread.join();
-                        new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
-                        receive();
-                        serverThread.join();
-                        new Toast(getApplicationContext()).makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        if (connectez) {
+                            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
+                            new Toast(getApplicationContext()).makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Erreur lors de la connection (Connexion à pris trop de temps)", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
-                }
-                catch (NullPointerException e){
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Erreur lors de la connection (Assurez-que le serveur est en marche)",Toast.LENGTH_SHORT).show();
+                } catch (NullPointerException e) {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Erreur lors de la connection (Assurez-que le serveur est en marche)", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 } catch (InterruptedException e) {
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Erreur lors de la connection (Assurez-que le serveur est en marche)",Toast.LENGTH_SHORT).show();
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Erreur lors de la connection (Assurez-que le serveur est en marche)", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
 
 
             }
         });
-
 
 
     }
@@ -315,9 +326,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.ipMenu:
                 String[] nouvPar = lireMem();
-                if(nouvPar.length != 2){
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
-                }else{
+                if (nouvPar.length != 2) {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
+                } else {
                     premierEditText.setText(nouvPar[0]);
                     deuxiemeEditText.setText(nouvPar[1]);
                 }
@@ -354,55 +365,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean ecrireToMem(String ip, String port){
+    private boolean ecrireToMem(String ip, String port) {
         FileOutputStream fichierAEcrire;
-        try
-        {
+        try {
             fichierAEcrire = openFileOutput("stockageIpPort.txt", MODE_PRIVATE);
             try {
                 fichierAEcrire.write((ip.concat("_" + port)).getBytes());
-            }
-            catch (NullPointerException e){
-                new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
+            } catch (NullPointerException e) {
+                new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
             }
             fichierAEcrire.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Impossibilité d'écrire",Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
             return false;
         } catch (IOException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Impossibilité d'écrire",Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
 
     }
 
-    private String[] lireMem(){
+    private String[] lireMem() {
 
-        try
-        {
-            FileInputStream fichierAEcrire =  new FileInputStream("stockageIpPort.txt");
+        try {
+            FileInputStream fichierAEcrire = new FileInputStream("stockageIpPort.txt");
             ObjectInputStream ois = new ObjectInputStream(fichierAEcrire);
             try {
                 String[] aRetourne = String.valueOf(ois.readByte()).split("_");
                 fichierAEcrire.close();
-                return  aRetourne;
-            }
-            catch (NullPointerException e){
-                new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
+                return aRetourne;
+            } catch (NullPointerException e) {
+                new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
             }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Impossibilité d'écrire",Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
 
 
         } catch (IOException e) {
             e.printStackTrace();
-            new Toast(getApplicationContext()).makeText(getApplicationContext(),"Impossibilité d'écrire",Toast.LENGTH_SHORT).show();
+            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité d'écrire", Toast.LENGTH_SHORT).show();
 
         }
 
@@ -412,16 +419,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     // Fonction pour generer un ArrayList de nombres premiers
 
-    private ArrayList<Double> prime(){
+    private ArrayList<Double> prime() {
 
         ArrayList<Double> prime_number = new ArrayList<Double>();
         int max = 150;
 
         // loop through the numbers one by one
-        for (int i = 1; i<max; i++) {
+        for (int i = 1; i < max; i++) {
             boolean isPrimeNumber = true;
 
             // Check to see if the number is prime
@@ -434,14 +440,15 @@ public class MainActivity extends AppCompatActivity {
 
             // Ajouter les nombres premiers a l'ArrayList
             if (isPrimeNumber) {
-                prime_number.add((double) i);}
+                prime_number.add((double) i);
+            }
         }
         return prime_number;
     }
 
 
     // Code 1 du projet de math pour calculer l'inverse modulaire
-    public Double euclide_etendue(double a, double d){
+    public Double euclide_etendue(double a, double d) {
         double r = a;
         double x = 1;
         double y = 0;
@@ -456,9 +463,9 @@ public class MainActivity extends AppCompatActivity {
             r = r_prime;
             x = x_prime;
             y = y_prime;
-            r_prime = r-q*r_prime;
-            x_prime = x-q*x_prime;
-            y_prime = y-q*y_prime;
+            r_prime = r - q * r_prime;
+            x_prime = x - q * x_prime;
+            y_prime = y - q * y_prime;
         }
 
         while (x < 0) {
@@ -466,9 +473,8 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(x);
         }
 
-        return  y;
+        return y;
     }
-
 
 
 }

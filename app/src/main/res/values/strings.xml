@@ -10,5 +10,5 @@
     <string name="lire_ip_et_ou_port">Loader l\'ancienne IP et l\'ancien port</string>
     <string name="devenir_client_default">Devenir client (default)</string>
     <string name="devenir_serveur">Devenir Serveur</string>
-    <string name="FbiProtection"> Bienvenue à l\'application de privatisation des communications. Pour commencer à utiliser l\'application générer les clés. Ensuite, établisser une connection et ensuite sentez vous comme Edward Snowden.</string>
+    <string name="FbiProtection"> Bienvenue à l\'application de privatisation des communications. Pour commencer à utiliser l\'application établisser une connection. Ensuite, générez ou recevez les clés et ensuite sentez-vous comme Edward Snowden.</string>
 </resources>
