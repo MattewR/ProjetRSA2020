@@ -28,8 +28,11 @@ public class SecondAct extends AppCompatActivity {
     private EditText message_a_encrypter;
     private Button button_encrypter_send;
     private Button button_decrypter;
-    private SocketConnection ptAcces;
     private Thread serverThread;
+    private boolean codesGenerez = false;
+    public SocketConnection ptAcces;
+    private String message;
+
 
 
 
@@ -44,9 +47,6 @@ public class SecondAct extends AppCompatActivity {
         button_encrypter_send = findViewById(R.id.button_encrypter_send);
         message_recu = findViewById(R.id.editTextmessage_recu);
         button_decrypter = findViewById(R.id.buttonDecrypt);
-
-
-
 
 
 
@@ -76,13 +76,14 @@ public class SecondAct extends AppCompatActivity {
 
                 // Aller chercher les valeurs generer des cles
                 Intent intent = getIntent();
-                ptAcces = getIntent().getSerializableExtra("SocketConnection");
+                getIntent().getSerializableExtra("SocketConnection");
                 String e_et_n = intent.getStringExtra("e_et_n");
+                Boolean isClient = intent.getBooleanExtra("isclient", true);
+                Boolean connectez = intent.getBooleanExtra("isConnecter", true);
 
                 String[] parts = e_et_n.split("_");
                 String e = parts[0];
                 String n = parts[1];
-
 
 
                 // Code 3 du projet de math pour chiffrer M --> C
@@ -90,41 +91,18 @@ public class SecondAct extends AppCompatActivity {
                 System.out.println("Message Encrypter: " + message_crypter);
 
 
+
                 // ***********************************************************
-                // **  Envoyer au serveur message encrypter
+                //              Envoyer au serveur message encrypter
                 // ***********************************************************
 
-                if (!isClient) {
-                    send(String.valueOf(e) + "_" + String.valueOf(n));
+                if (isClient) {
+                    send(message_crypter.toString());
                     try {
-                        serverThread.join();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
+                        serverThread.join();}
+                    catch (InterruptedException ex) {
+                        ex.printStackTrace();}
                     }
-                    codesGenerez = true;
-                } else {
-                    receive();
-                    try {
-                        serverThread.join();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    String eEtN = message;
-
-
-                    // Transferer l'information a l'activite 2
-                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
-                    intent.putExtra("e_et_n", eEtN);
-                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
-
-                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
-
-                    codesGenerez = true;
-                }
-
-
-
 
             }
         });
@@ -142,23 +120,39 @@ public class SecondAct extends AppCompatActivity {
             public void onClick(View view) {
 
 
+                // Aller chercher les valeurs generer des cles
+                Intent intent = getIntent();
+                getIntent().getSerializableExtra("SocketConnection");
+                Boolean isClient = intent.getBooleanExtra("isclient", true);
+                Boolean connectez = intent.getBooleanExtra("isConnecter", true);
+                String e_et_n = intent.getStringExtra("e_et_n");
+                String d = intent.getStringExtra("d");
+                String[] parts = e_et_n.split("_");
+                String n = parts[1];
+
+                // ******************************************************************
+                //                   Recevoir le message encrypte
+                // ******************************************************************
+
+                if (!isClient) {
+                    receive();
+                    try {
+                        serverThread.join();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();}
+                }
+
+
+
                 // --------------------------- Decrypter le message --------------------------------
 
-
-                // ******************************************************************
-                // ** Il faut mettre le bout de code pour recevoir l'info transmis
-                // ******************************************************************
-
-                String message_encrypter = "";
-                double d = 0;
-                double n = 0;
-
                 // Decrypter le message en base 10 avec un tableau d'exponentiation modulaire
-                double message_decrypter = exponentiation_mod(message_encrypter, d,  n);
+                double message_decrypter = exponentiation_mod(message, Double.parseDouble(d),  Double.parseDouble(n));
 
 
                 // Reconvertir le message vers la base 36 en String
                 String base_36 = Integer.toString(Integer.parseInt(String.valueOf(message_decrypter), 10), 36);
+
 
                 // Decoder la base 36 en String
                 byte[] bytes = new BigInteger(base_36, 36).toByteArray();
@@ -172,57 +166,7 @@ public class SecondAct extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
-
-
-
-
-
-
     }
-
-
-
-//
-//    // Fonctions qui permettent de savoir si 2 nombres sont co-premier entre eux
-//
-//    private static int PGCD(int a, int b) {
-//        int t;
-//        while (b!=0) {
-//            t = a;
-//            a = b;
-//            b = t % b;}
-//        return a;
-//    }
-//
-//    // Verifier si co-premier
-//    private static boolean co_premier(int a, int b) {
-//        return PGCD(a,b) == 1;
-//    }
-//
-//    // Retourner la premiere paire de nombre co-premier
-//    private static ArrayList<Integer> paires_co_premier(int arr[], int n){
-//
-//        int trouver = 0;
-//        ArrayList<Integer> co_premier = new ArrayList<Integer>();
-//
-//        for (int i = 0; i < n - 1; i++)
-//            for (int j = i + 1; j < n; j++)
-//
-//                if (co_premier(arr[i], arr[j]) && trouver!= 1) {
-//                    trouver = 1;
-//                    co_premier.add(i);
-//                    co_premier.add(j);}
-//
-//        return co_premier;
-//    }
-//
-
-
 
 
 

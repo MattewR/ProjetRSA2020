@@ -207,7 +207,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // Calculer d --> Inverse modulaire e mod (p-1)(q-1)
-                double d = euclide_etendue(e, coprime);
+                double _d = euclide_etendue(e, coprime);
+                String d = String.valueOf(_d);
                 System.out.println(d);
 
 
@@ -239,7 +240,10 @@ public class MainActivity extends AppCompatActivity {
                     // Transferer l'information a l'activite 2
                     Intent intent = new Intent(MainActivity.this, SecondAct.class);
                     intent.putExtra("e_et_n", eEtN);
+                    intent.putExtra("d", d);
                     intent.putExtra("SockectConnection", (Parcelable) ptAcces);
+                    intent.putExtra("isclient", isClient);
+                    intent.putExtra("isConnecter", connectez);
 
                     startActivityForResult(intent, FROM_SECOND_ACTIVITY);
 
