@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Projet RSA 2020</string>
     <string name="decrypter_rsa">Communication RSA</string>
-    <string name="generer_les_codes_rsa">Générer les codes RSA</string>
+    <string name="generer_les_codes_rsa">Générer les codes RSA / Recevoir la clé public</string>
     <string name="message_re_u">Message reçu</string>
     <string name="d_crypter">Décrypter</string>
     <string name="message_envoyer">Message à envoyer</string>
@@ -10,4 +10,5 @@
     <string name="lire_ip_et_ou_port">Loader l\'ancienne IP et l\'ancien port</string>
     <string name="devenir_client_default">Devenir client (default)</string>
     <string name="devenir_serveur">Devenir Serveur</string>
+    <string name="FbiProtection"> Bienvenue à l\'application de privatisation des communications. Pour commencer à utiliser l\'application générer les clés. Ensuite, établisser une connection et ensuite sentez vous comme Edward Snowden.</string>
 </resources>

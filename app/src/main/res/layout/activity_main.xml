@@ -12,6 +12,7 @@
 
 
         android:orientation="vertical"
+        android:weightSum="30"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,13 +20,18 @@
         tools:layout_editor_absoluteY="0dp">
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/accueil"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            android:text="Menu"
-            tools:ignore="MissingConstraints" />
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:autoText="false"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center|top"
+            android:text="@string/FbiProtection"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            app:autoSizeTextType="uniform" />
 
         <Space
             android:layout_width="match_parent"
@@ -35,9 +41,11 @@
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_weight="4"
             android:text="@string/generer_les_codes_rsa" />
 
         <Space
+            android:id="@+id/FbiProtection"
             android:layout_width="match_parent"
             android:layout_height="20dp" />
 
@@ -45,6 +53,7 @@
             android:id="@+id/button_communication"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_weight="4"
             android:gravity="center"
             android:text="@string/decrypter_rsa" />
 
@@ -52,13 +61,18 @@
             android:id="@+id/textView8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="Entrez les informations pour commencer la communication privé:"
+            android:textStyle="italic" />
 
         <EditText
             android:id="@+id/IPInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:ems="10"
+            android:gravity="bottom|center"
             android:hint="IP (Possibilité de loader avec le menu)"
             android:inputType="textPersonName" />
 
@@ -66,7 +80,9 @@
             android:id="@+id/PortInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:ems="10"
+            android:gravity="bottom|center"
             android:hint="Port (Possibilité de loader avec le menu)"
             android:inputType="textPersonName" />
 
@@ -74,7 +90,8 @@
             android:id="@+id/butConnecter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Se Connecter" />
+            android:layout_weight="6"
+            android:text="Se Connecter / Hoster le serveur" />
 
     </LinearLayout>
 

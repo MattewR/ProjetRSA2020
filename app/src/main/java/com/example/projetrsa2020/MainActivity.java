@@ -42,7 +42,47 @@ public class MainActivity extends AppCompatActivity {
     public SocketConnection ptAcces;
     private boolean isClient = true;
     private Button bouton_communication_RSA;
-    boolean connectez = false;
+    private boolean connectez = false;
+    private boolean codesGenerez = false;
+    private double publicKey;
+    private double privateKey;
+    private String message;
+    private Thread serverThread;
+
+    public double getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(double publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public double getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(double privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public double getN() {
+        return n;
+    }
+
+    public void setN(double n) {
+        this.n = n;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    private double n;
 
     public void start(final String port) {
 
@@ -54,11 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     ptAcces = new SocketConnection(port);
-                    while (!ptAcces.getConnectionstatusServer()) {
-                        ptAcces.accept();
-                    }
+                    ptAcces.accept();
                     connectez = true;
-                    Log.i("Creer",ptAcces.receiveMessage());
                 }
                 catch (NumberFormatException e) {
                     throw e;
@@ -68,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        Thread serverThread = new Thread(serverTask);
+        serverThread = new Thread(serverTask);
         serverThread.start();
     }
 
@@ -81,8 +118,55 @@ public class MainActivity extends AppCompatActivity {
                 ptAcces.updateClientStatus();
             }
         };
-        Thread serverThread = new Thread(serverTask);
+        serverThread = new Thread(serverTask);
         serverThread.start();
+    }
+
+    public void receive(){
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    message = ptAcces.receiveMessage();
+
+                }
+                catch (NumberFormatException e) {
+                    throw e;
+                }
+                catch (NullPointerException e){
+                    throw e;
+                }
+            }
+        };
+        serverThread = new Thread(serverTask);
+        serverThread.start();
+    }
+
+    public void send(final String message){
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ptAcces.sendMessage(message);
+
+                }
+                catch (NumberFormatException e) {
+                    throw e;
+                }
+                catch (NullPointerException e){
+                    throw e;
+                }
+            }
+        };
+        serverThread = new Thread(serverTask);
+        serverThread.start();
+
     }
 
     @Override
@@ -100,20 +184,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
-                Intent intent = new Intent(MainActivity.this, SecondAct.class);
+                //Part la nouvelle activité si et seulement si les codes ont été générer pour le serveur et si le client ou le serveur sont connectez
+                //Enlevez le true quand l'app va marcher
+                if(connectez && codesGenerez || true) {
+                    // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
+                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
 
-                // Ajoute les extras à transmettre
-                //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
+                    // Ajoute les extras à transmettre
+                    //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
 
-                // Créer l'activité avec un code de retour
-                startActivityForResult(intent, FROM_SECOND_ACTIVITY);
+                    // Créer l'activité avec un code de retour
+                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
+                }
             }
         });
-
-
-
-
 
 
         //Quand on click sur Se Connecter
@@ -127,20 +211,38 @@ public class MainActivity extends AppCompatActivity {
                     String port = ((EditText) findViewById(R.id.PortInput)).getText().toString();
                     if ( isClient ) {
                         start(port, ip);
+                        serverThread.join();
                         ecrireToMem(ip,port);
+                        if (ptAcces.getConnectionstatusClient() == false){
+                            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de se connecter", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
+                            connectez = true;
+                            send("IT WORKED BOYYYYYYYYYYYYYY");
+                        }
                     }
                     else{
                         start(port);
+                        serverThread.join();
+                        new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
+                        receive();
+                        serverThread.join();
+                        new Toast(getApplicationContext()).makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                     }
 
                 }
                 catch (NumberFormatException e) {
                     new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez entrez des données valides", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
                 catch (NullPointerException e){
                     new Toast(getApplicationContext()).makeText(getApplicationContext(),"Erreur lors de la connection (Assurez-que le serveur est en marche)",Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(),"Erreur lors de la connection (Assurez-que le serveur est en marche)",Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
-
 
 
             }
@@ -238,12 +340,13 @@ public class MainActivity extends AppCompatActivity {
             FileInputStream fichierAEcrire =  new FileInputStream("stockageIpPort.txt");
             ObjectInputStream ois = new ObjectInputStream(fichierAEcrire);
             try {
-                return  String.valueOf(ois.readByte()).split("_");
+                String[] aRetourne = String.valueOf(ois.readByte()).split("_");
+                fichierAEcrire.close();
+                return  aRetourne;
             }
             catch (NullPointerException e){
                 new Toast(getApplicationContext()).makeText(getApplicationContext(),"Veuillez entrez des données valides",Toast.LENGTH_SHORT).show();
             }
-            fichierAEcrire.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

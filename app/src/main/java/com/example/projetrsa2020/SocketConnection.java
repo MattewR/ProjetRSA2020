@@ -1,8 +1,10 @@
 package com.example.projetrsa2020;
+
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,30 +17,32 @@ import java.net.SocketTimeoutException;
 
 public class SocketConnection extends Application {
 
-    public SocketConnection(String port){
+    public SocketConnection(String port) {
         try {
-            socketServer =  new ServerSocket(Integer.parseInt(port));
+            socketServer = new ServerSocket(Integer.parseInt(port));
         } catch (IOException e) {
             e.printStackTrace();
 
-        }
-        catch (NumberFormatException e){
+
+        } catch (NumberFormatException e) {
             e.printStackTrace();
+
 
         }
         socketClient = null;
 
     }
 
-    public SocketConnection(String Host, String port){
+    public SocketConnection(String Host, String port) {
 
         socketClient = new Socket();
 
 
         try {
-            socketClient.connect(new InetSocketAddress(InetAddress.getByName(Host),Integer.parseInt(port)));
+            socketClient.connect(new InetSocketAddress(InetAddress.getByName(Host), Integer.parseInt(port)));
         } catch (IOException e) {
             e.printStackTrace();
+
         }
 
 
@@ -46,45 +50,66 @@ public class SocketConnection extends Application {
 
     }
 
-    public void sendMessage(String message){
-        if(socketServer == null) {
-            DataOutputStream outputStream = null;
-            try {
+    public void sendMessage(String message) {
+
+        DataOutputStream outputStream = null;
+        try {
+            if (socketServer == null) {
                 outputStream = new DataOutputStream(socketClient.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                outputStream = new DataOutputStream(socketServerAccept.getOutputStream());
             }
-            try {
-                outputStream.writeUTF(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        try {
+            outputStream.writeUTF(message);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public String receiveMessage(){
-
+    public String receiveMessage() {
 
         DataInputStream inputStream = null;
+
         try {
-            inputStream = new DataInputStream(socketServerAccept.getInputStream());
+            if (socketServerAccept != null) {
+                inputStream = new DataInputStream(socketServerAccept.getInputStream());
+            } else {
+                inputStream = new DataInputStream(socketClient.getInputStream());
+            }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        try {
-            return inputStream.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String toSend = "";
+        while (toSend.equals("")) {
+            try {
+                toSend = inputStream.readUTF();
+                inputStream.close();
+                if(!toSend.equals("")) {
+                    return toSend;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
         return "";
+
     }
 
-    public void accept(){
+    public void accept() {
 
-        if(socketServer != null){
+        if (socketServer != null) {
             try {
                 socketServerAccept = socketServer.accept();
-                if(socketServerAccept.isConnected()){
+                if (socketServerAccept.isConnected()) {
                     isConnectedServer = true;
                 }
             } catch (IOException e) {
@@ -94,38 +119,32 @@ public class SocketConnection extends Application {
 
     }
 
-    public void close(){
+    public void close() {
         try {
             socketClient.close();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         try {
             socketServer.close();
             socketServerAccept.close();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void updateClientStatus(){
-        if (socketClient != null ){
+    public void updateClientStatus() {
+        if (socketClient != null) {
             isConnectedClient = socketClient.isConnected();
-        }
-        else{
-            Log.d("sf","gogogogo");
         }
     }
 
 
-
-     public boolean getConnectionstatusClient(){
+    public boolean getConnectionstatusClient() {
         return isConnectedClient;
     }
 
-    public boolean getConnectionstatusServer(){
+    public boolean getConnectionstatusServer() {
         return isConnectedServer;
     }
 
