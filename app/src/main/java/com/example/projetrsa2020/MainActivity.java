@@ -536,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
 
         while (r_prime != 0) {
 
-            double q = Math.floor(r_prime);
+            double q = Math.floor(r / r_prime);
 
             r = r_prime;
             x = x_prime;
