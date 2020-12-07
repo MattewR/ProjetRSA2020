@@ -32,7 +32,7 @@
             android:layout_height="80dp" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_generer_codes"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:text="@string/generer_les_codes_rsa" />

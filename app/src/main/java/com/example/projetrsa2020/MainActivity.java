@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private final int FROM_SECOND_ACTIVITY = 1;
     public SocketConnection ptAcces;
     private boolean isClient = true;
+    private  Button bouton_generer_codes;
     private Button bouton_communication_RSA;
     boolean connectez = false;
 
@@ -92,7 +93,53 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Relier chaque element graphique dans le code
+        bouton_generer_codes = findViewById(R.id.button_generer_codes);
         bouton_communication_RSA = findViewById(R.id.button_communication);
+
+
+
+
+        // Quand on clisk sur le bouton Generer les codes RSA
+        bouton_generer_codes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //   --------------------- Generer les cles RSA a envoyer --------------------------
+
+                // ArrayList de nombre premiers
+                ArrayList<Double> prime_numbers = prime();
+
+                // Generer aleatoirement n (n = p x q)
+                int min = 0;
+                int max = prime_numbers.size();
+                double index_p = Math.random() * (max-min+1) + min;
+                double index_q = Math.random() * (max-min+1) + min;
+                double p = prime_numbers.get((int) index_p);
+                double q = prime_numbers.get((int) index_q);
+                double n = p*q;
+
+
+                // Generer e qui est copremier avec (𝑝 − 1)(𝑞 − 1)
+                double coprime = (p-1)*(q-1);
+                double e = coprime-1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
+
+
+                // Calculer d --> Inverse modulaire e mod (p-1)(q-1)
+                double d = euclide_etendue(e, coprime);
+                System.out.println(d);
+
+
+                // -------------------------------------------------------
+                //                    Envoyer e + n
+                // -------------------------------------------------------
+
+
+            }
+        });
+
+
+
+
 
 
         // Quand on click sur le bouton Communication RSA
@@ -259,6 +306,64 @@ public class MainActivity extends AppCompatActivity {
         return new String[0];
 
 
+    }
+
+
+
+    // Fonction pour generer un ArrayList de nombres premiers
+
+    private ArrayList<Double> prime(){
+
+        ArrayList<Double> prime_number = new ArrayList<Double>();
+        int max = 150;
+
+        // loop through the numbers one by one
+        for (int i = 1; i<max; i++) {
+            boolean isPrimeNumber = true;
+
+            // Check to see if the number is prime
+            for (int j = 2; j < i; j++) {
+                if (i % j == 0) {
+                    isPrimeNumber = false;
+                    break; // exit the inner for loop
+                }
+            }
+
+            // Ajouter les nombres premiers a l'ArrayList
+            if (isPrimeNumber) {
+                prime_number.add((double) i);}
+        }
+        return prime_number;
+    }
+
+
+    // Code 1 du projet de math pour calculer l'inverse modulaire
+    public Double euclide_etendue(double a, double d){
+        double r = a;
+        double x = 1;
+        double y = 0;
+        double r_prime = d;
+        double x_prime = 0;
+        double y_prime = 1;
+
+        while (r_prime != 0) {
+
+            double q = Math.floor(r_prime);
+
+            r = r_prime;
+            x = x_prime;
+            y = y_prime;
+            r_prime = r-q*r_prime;
+            x_prime = x-q*x_prime;
+            y_prime = y-q*y_prime;
+        }
+
+        while (x < 0) {
+            x += d;
+            System.out.println(x);
+        }
+
+        return  y;
     }
 
 
