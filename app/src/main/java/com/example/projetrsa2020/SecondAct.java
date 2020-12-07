@@ -3,11 +3,14 @@ package com.example.projetrsa2020;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.math.BigInteger;
@@ -16,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SecondAct extends AppCompatActivity {
 
@@ -67,32 +72,61 @@ public class SecondAct extends AppCompatActivity {
                 String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
                 System.out.println("Message Base 10: " + message_base10);
 
-                int e = 0;
-                int n = 0;
+
+                // Aller chercher les valeurs generer des cles
+                Intent intent = getIntent();
+                getIntent().getSerializableExtra("SocketConnection");
+                String e_et_n = intent.getStringExtra("e_et_n");
+
+                String[] parts = e_et_n.split("_");
+                String e = parts[0];
+                String n = parts[1];
+
+
+
                 // Code 3 du projet de math pour chiffrer M --> C
-                Double message_crypter = exponentiation_mod(message_base10, e, n);
+                Double message_crypter = exponentiation_mod(message_base10, Double.parseDouble(e), Double.parseDouble(n));
                 System.out.println("Message Encrypter: " + message_crypter);
-
-
-
-                // Test pour verifier que la conversion de retour fonctionne
-
-                // Reconvertir le message vers la base 36 en String
-                String base_36 = Integer.toString(Integer.parseInt(String.valueOf(message_crypter), 10), 36);
-
-                // Decoder la base 36 en String
-                bytes = new BigInteger(base_36, 36).toByteArray();
-                int zeroPrefixLength = zeroPrefixLength(bytes);
-                String string_decrypter = new String(bytes, zeroPrefixLength, bytes.length-zeroPrefixLength, StandardCharsets.UTF_8);
-
-
-                // Afficher dans l'application la string decrypter
-                message_recu.setText(string_decrypter);
 
 
                 // ***********************************************************
                 // **  Envoyer au serveur message encrypter
                 // ***********************************************************
+
+                if (!isClient && connectez) {
+                    send(String.valueOf(e) + "_" + String.valueOf(n));
+                    try {
+                        serverThread.join();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    codesGenerez = true;
+                } else if (connectez) {
+                    receive();
+                    try {
+                        serverThread.join();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    String eEtN = message;
+
+
+                    // Transferer l'information a l'activite 2
+                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
+                    intent.putExtra("e_et_n", eEtN);
+                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
+
+                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
+
+                    codesGenerez = true;
+                } else {
+                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez-vous connectez avant", Toast.LENGTH_SHORT).show();
+                    codesGenerez = false;
+                }
+
+
+
 
             }
         });
@@ -237,6 +271,50 @@ public class SecondAct extends AppCompatActivity {
         return bk;
     }
 
+
+    public void receive() {
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    message = ptAcces.receiveMessage();
+
+                } catch (NumberFormatException e) {
+                    throw e;
+                } catch (NullPointerException e) {
+                    throw e;
+                }
+            }
+        };
+        serverThread = new Thread(serverTask);
+        serverThread.start();
+    }
+
+
+    public void send(final String message) {
+        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+        Runnable serverTask = new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    ptAcces.sendMessage(message);
+
+                } catch (NumberFormatException e) {
+                    throw e;
+                } catch (NullPointerException e) {
+                    throw e;
+                }
+            }
+        };
+        serverThread = new Thread(serverTask);
+        serverThread.start();
+
+    }
 
 }
 

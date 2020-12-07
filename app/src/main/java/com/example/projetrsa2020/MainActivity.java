@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
@@ -211,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 // -------------------------------------------------------
                 //                    Envoyer e + n
                 // -------------------------------------------------------
+
                 if (!isClient && connectez) {
                     send(String.valueOf(e) + "_" + String.valueOf(n));
                     try {
@@ -226,7 +228,17 @@ public class MainActivity extends AppCompatActivity {
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
+
                     String eEtN = message;
+
+
+                    // Transferer l'information a l'activite 2
+                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
+                    intent.putExtra("e_et_n", eEtN);
+                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
+
+                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
+
                     codesGenerez = true;
                 } else {
                     new Toast(getApplicationContext()).makeText(getApplicationContext(), "Veuillez-vous connectez avant", Toast.LENGTH_SHORT).show();
