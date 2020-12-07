@@ -1,7 +1,6 @@
 package com.example.projetrsa2020;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -59,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private String message;
     private Thread serverThread;
     private double n;
+    private String eEtN;
+    private String d;
 
     /**
      * Créer le serveur et commence tout de suite à accepter la prochaine connection
@@ -76,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     ptAcces = new SocketConnection(port);
                     ptAcces.accept();
-                    connectez = true;
+                    if (ptAcces.getConnectionstatusServer()) {
+                        connectez = true;
+                    }
                 } catch (NumberFormatException e) {
                     throw e;
                 } catch (NullPointerException e) {
@@ -100,8 +102,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 ptAcces = new SocketConnection(ip, port);
-                ptAcces.updateClientStatus();
-                connectez = true;
+                if(ptAcces.getConnectionstatusClient()){
+                    connectez = true;
+                }
             }
         };
         serverThread = new Thread(serverTask);
@@ -135,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Permet l'envoie du message peu importe si c'est le client ou le serveur qui l'envoie.
+     * C'est fait sur un autre thread
+     * Ne pas oublié de join ou lock le thread pour éviter que le main thread acces a message en même temps ou vant que send() soit fini.
      * @param message Le message souhaitant être envoyé.
      */
     public void send(final String message) {
@@ -187,37 +192,37 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //   --------------------- Generer les cles RSA a envoyer --------------------------
+                if(connectez) {
+                    // ArrayList de nombre premiers
+                    ArrayList<Double> prime_numbers = prime();
 
-                // ArrayList de nombre premiers
-                ArrayList<Double> prime_numbers = prime();
-
-                // Generer aleatoirement n (n = p x q)
-                int min = 0;
-                int max = prime_numbers.size();
-                double index_p = Math.random() * (max - min + 1) + min;
-                double index_q = Math.random() * (max - min + 1) + min;
-                double p = prime_numbers.get((int) index_p);
-                double q = prime_numbers.get((int) index_q);
-                double n = p * q;
-
-
-                // Generer e qui est copremier avec (𝑝 − 1)(𝑞 − 1)
-                double coprime = (p - 1) * (q - 1);
-                double e = coprime - 1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
+                    // Generer aleatoirement n (n = p x q)
+                    int min = 0;
+                    int max = prime_numbers.size();
+                    double index_p = Math.random() * (max - min + 1) + min;
+                    double index_q = Math.random() * (max - min + 1) + min;
+                    double p = prime_numbers.get((int) index_p);
+                    double q = prime_numbers.get((int) index_q);
+                    double n = p * q;
 
 
-                // Calculer d --> Inverse modulaire e mod (p-1)(q-1)
-                double _d = euclide_etendue(e, coprime);
-                String d = String.valueOf(_d);
-                System.out.println(d);
+                    // Generer e qui est copremier avec (𝑝 − 1)(𝑞 − 1)
+                    double coprime = (p - 1) * (q - 1);
+                    double e = coprime - 1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
 
 
+                    // Calculer d --> Inverse modulaire e mod (p-1)(q-1)
+                    double _d = euclide_etendue(e, coprime);
+                    d = String.valueOf(_d);
+                    System.out.println(d);
+                    eEtN = String.valueOf(e) + "_" + String.valueOf(n);
+                }
                 // -------------------------------------------------------
                 //                    Envoyer e + n
                 // -------------------------------------------------------
 
                 if (!isClient && connectez) {
-                    send(String.valueOf(e) + "_" + String.valueOf(n));
+                    send(eEtN);
                     try {
                         serverThread.join();
                     } catch (InterruptedException ex) {
@@ -234,18 +239,10 @@ public class MainActivity extends AppCompatActivity {
                         ex.printStackTrace();
                     }
 
-                    String eEtN = message;
+                    eEtN = message;
 
 
-                    // Transferer l'information a l'activite 2
-                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
-                    intent.putExtra("e_et_n", eEtN);
-                    intent.putExtra("d", d);
-                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
-                    intent.putExtra("isclient", isClient);
-                    intent.putExtra("isConnecter", connectez);
 
-                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
 
                     codesGenerez = true;
                     bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.vertPermis));
@@ -269,12 +266,21 @@ public class MainActivity extends AppCompatActivity {
 
                 //Part la nouvelle activité si et seulement si les codes ont été générer pour le serveur et si le client ou le serveur sont connectez
                 //Enlevez le true quand l'app va marcher
+
                 if (connectez && codesGenerez) {
                     // Créer un Intent disant d'où on part (l'activité de retour) et quelle activité on veut créer
-                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
-
                     // Ajoute les extras à transmettre
                     //intent.putExtra(NOM_JOUEUR, editText.getText().toString());
+                    // Transferer l'information a l'activite 2
+
+                    Intent intent = new Intent(MainActivity.this, SecondAct.class);
+                    intent.putExtra("e_et_n", eEtN);
+                    intent.putExtra("d", d);
+                    intent.putExtra("SockectConnection", (Parcelable) ptAcces);
+                    intent.putExtra("isclient", isClient);
+                    intent.putExtra("isConnecter", connectez);
+
+                    startActivityForResult(intent, FROM_SECOND_ACTIVITY);
 
                     // Créer l'activité avec un code de retour
                     startActivityForResult(intent, FROM_SECOND_ACTIVITY);
@@ -299,17 +305,20 @@ public class MainActivity extends AppCompatActivity {
                     String port = ((EditText) findViewById(R.id.PortInput)).getText().toString();
                     if (isClient) {
                         start(port, ip);
+                        //S'assure que le thread ne continue pas après avoir call la connection
                         serverThread.join();
-                        ecrireToMem(ip, port,getApplicationContext());
                         if (connectez == false) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Impossibilité de se connecter", Toast.LENGTH_SHORT).show();
                         } else {
+                            ecrireToMem(ip, port,getApplicationContext());
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
-                            connectez = true;
+                            boutonConnecter.setBackgroundColor(getResources().getColor(R.color.vertPermis));
+                            bouton_generer_codes.setBackgroundColor(getResources().getColor(R.color.jauneAnanas));
 
                         }
                     } else {
                         start(port);
+                        //S'assure que le thread ne continue pas après avoir call la connection
                         serverThread.join();
                         if (connectez) {
                             new Toast(getApplicationContext()).makeText(getApplicationContext(), "Connection réussie", Toast.LENGTH_SHORT).show();
@@ -421,6 +430,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean ecrireToMem(String ip, String port, Context contexte) {
 
         try {
+            //Nouvelle output stream qui overwrite ou qui écrit pour la première fois le fichier
             OutputStreamWriter fichierAEcrire = new OutputStreamWriter(contexte.openFileOutput("stockageIpPort.txt", contexte.MODE_PRIVATE));
             try {
                 fichierAEcrire.write((ip.concat("_" + port)));
@@ -447,8 +457,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Lit le fichier stockageIpPort.txt qui contient l'ip et le port et le load dans les edit Text correspondant.
-     * @param contexte
-     * @return
+     * @param contexte le contexte de l'activité
+     * @return Retourne ce qu'il a lu en index 0 l'ip et en index 1 le port
      */
     private String[] lireMem(Context contexte) {
         String aLire = "";

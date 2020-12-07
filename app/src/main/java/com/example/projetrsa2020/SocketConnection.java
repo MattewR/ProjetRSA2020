@@ -9,6 +9,7 @@ import android.widget.Toast;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -17,9 +18,14 @@ import java.net.SocketTimeoutException;
 
 /**
  * @author Mathis
+ * Permet de faciliter l'implémentation des communications par socket
+ * Chaque objet contient les outils nécessaire pour devenir un serveur ou un client
  */
-public class SocketConnection extends Application {
-
+public class SocketConnection extends Application implements Serializable {
+    /**
+     * Créer un serveur socket
+     * @param port le port que le socket regarde/attend la connection de
+     */
     public SocketConnection(String port) {
         try {
             socketServer = new ServerSocket(Integer.parseInt(port));
@@ -36,6 +42,12 @@ public class SocketConnection extends Application {
 
     }
 
+    /**
+     * Créer le nouveau socket client et essaye tout de suite de se connecter
+     * Les timeout peuvent arriver
+     * @param Host L'adresse ip de l'hôte
+     * @param port Le port de l'hôte
+     */
     public SocketConnection(String Host, String port) {
 
         socketClient = new Socket();
@@ -43,6 +55,7 @@ public class SocketConnection extends Application {
 
         try {
             socketClient.connect(new InetSocketAddress(InetAddress.getByName(Host), Integer.parseInt(port)));
+            isConnectedClient = true;
         }
         catch (NumberFormatException e){
             e.printStackTrace();
@@ -52,7 +65,7 @@ public class SocketConnection extends Application {
 
         }
 
-
+        socketServerAccept = null;
         socketServer = null;
 
     }
