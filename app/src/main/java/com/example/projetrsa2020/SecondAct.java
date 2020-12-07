@@ -67,20 +67,6 @@ public class SecondAct extends AppCompatActivity {
 
                 // ---------------------- Encrypter le message et l'envoyer ------------------------
 
-                String message = message_a_encrypter.getText().toString();
-                System.out.println("Message: " + message);
-
-
-                // Convertir le message en base 36
-                byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
-                String message_base36 = new BigInteger(1, bytes).toString(36);
-                System.out.println("Message Base 36: " + message_base36);
-
-
-                // Convertir la base 36 en base 10
-                String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
-                System.out.println("Message Base 10: " + message_base10);
-
 
                 // Aller chercher les valeurs generer des cles
                 Intent intent = getIntent();
@@ -89,28 +75,51 @@ public class SecondAct extends AppCompatActivity {
                 Boolean isClient = intent.getBooleanExtra("isclient", true);
                 Boolean connectez = intent.getBooleanExtra("isConnecter", true);
 
-                String[] parts = e_et_n.split("_");
-                String e = parts[0];
-                String n = parts[1];
+
+                if (isClient){
+                    String message = message_a_encrypter.getText().toString();
+                    System.out.println("Message: " + message);
 
 
-                // Code 3 du projet de math pour chiffrer M --> C
-                Double message_crypter = exponentiation_mod(message_base10, Double.parseDouble(e), Double.parseDouble(n));
-                System.out.println("Message Encrypter: " + message_crypter);
+                    // Convertir le message en base 36
+                    byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+                    String message_base36 = new BigInteger(1, bytes).toString(36);
+                    System.out.println("Message Base 36: " + message_base36);
+
+
+                    // Convertir la base 36 en base 10
+                    String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
+                    System.out.println("Message Base 10: " + message_base10);
+
+
+                    String[] parts = e_et_n.split("_");
+                    String e = parts[0];
+                    String n = parts[1];
+
+
+                    // Code 3 du projet de math pour chiffrer M --> C
+                    Double message_crypter = exponentiation_mod(message_base10, Double.parseDouble(e), Double.parseDouble(n));
+                    System.out.println("Message Encrypter: " + message_crypter);
 
 
 
-                // ***********************************************************
-                //              Envoyer au serveur message encrypter
-                // ***********************************************************
+                    // ***********************************************************
+                    //              Envoyer au serveur message encrypter
+                    // ***********************************************************
 
-                if (isClient) {
                     send(message_crypter.toString());
                     try {
                         serverThread.join();}
                     catch (InterruptedException ex) {
                         ex.printStackTrace();}
-                    }
+                }
+
+
+
+
+
+
+
 
             }
         });
@@ -185,7 +194,7 @@ public class SecondAct extends AppCompatActivity {
 
 
     /**
-     *
+     * Fonction pour la conversion d'une base 36 en string
      * @param bytes
      * @return
      */
