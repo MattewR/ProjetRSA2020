@@ -102,15 +102,8 @@ public class SecondAct extends AppCompatActivity {
 
                         System.out.println("Message: " + message);
 
-
-                        // Convertir le message en base 36
-                        byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
-                        String message_base36 = new BigInteger(1, bytes).toString(36);
-                        System.out.println("Message Base 36: " + message_base36);
-
-
-                        // Convertir la base 36 en base 10
-                        String message_base10 = Integer.toString(Integer.parseInt(message_base36, 36), 10);
+                        // Provient de la classe base Encoder pour convertir un String en base 10
+                        String message_base10 = BaseEncoder.baseConversion(message, 36, 10);
                         System.out.println("Message Base 10: " + message_base10);
 
 
@@ -189,14 +182,9 @@ public class SecondAct extends AppCompatActivity {
 
 
                 // Reconvertir le message vers la base 36 en String
-                String base_36 = Integer.toString(Integer.parseInt(String.valueOf(message_decrypter), 10), 36);
-
-
-                // Decoder la base 36 en String
-                byte[] bytes = new BigInteger(base_36, 36).toByteArray();
-                int zeroPrefixLength = zeroPrefixLength(bytes);
-                String string_decrypter = new String(bytes, zeroPrefixLength, bytes.length-zeroPrefixLength, StandardCharsets.UTF_8);
-
+                // Provient de la classe base Encoder
+                String string_decrypter = BaseEncoder.baseConversion(String.valueOf(message_decrypter), 36, 10);
+                System.out.println("Message Base 10: " + string_decrypter);
 
                 // Afficher dans l'application la string decrypter
                 message_recu.setText(string_decrypter);
@@ -229,6 +217,9 @@ public class SecondAct extends AppCompatActivity {
 
 
     }
+
+
+
 
 
     /**
