@@ -42,6 +42,9 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Activité principal
+ */
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -289,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                     double n = p * q;
 
 
-                    // Generer e qui est copremier avec (𝑝 − 1)(𝑞 − 1)
+                    // Generer e qui est copremier avec (p - 1)(q - 1)
                     double coprime = (p - 1) * (q - 1);
                     double e = coprime - 1;   // Pcq par definition 2 entiers qui se suivent sont co-premier
 

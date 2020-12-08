@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Activité Secondaire
+ */
+
 public class SecondAct extends AppCompatActivity {
 
 
@@ -163,7 +167,6 @@ public class SecondAct extends AppCompatActivity {
                 // ******************************************************************
 
                 if (!isClient) {
-                    new Toast(getApplicationContext()).makeText(getApplicationContext(), "Toast recu!", Toast.LENGTH_SHORT).show();
                     receive();
 
                     try {
@@ -183,7 +186,7 @@ public class SecondAct extends AppCompatActivity {
 
                 // Reconvertir le message vers la base 36 en String
                 // Provient de la classe base Encoder
-                String string_decrypter = BaseEncoder.baseConversion(String.valueOf(message_decrypter), 36, 10);
+                String string_decrypter = BaseEncoder.baseConversion(String.valueOf(message_decrypter), 10, 36);
                 System.out.println("Message Base 10: " + string_decrypter);
 
                 // Afficher dans l'application la string decrypter
@@ -222,24 +225,11 @@ public class SecondAct extends AppCompatActivity {
 
 
 
-    /**
-     * Fonction pour la conversion d'une base 36 en string
-     * @param bytes
-     * @return
-     */
-    private int zeroPrefixLength(final byte[] bytes) {
-        for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] != 0) {
-                return i;
-            }
-        }
-        return bytes.length;
-    }
-
 
     /**
      * Méthode pour calculer l'exponention modulaire neccessaire pour encrypter et decrypter un message
      * Le pseudo-code de l'algorithme à été présenté dans le cours de Math Discrète
+     * Inspiré de StackOverflow
      * @param C message a encrypter ou decrypter
      * @param exp exposant (soit e pour chiffré ou d pour déchiffrer)
      * @param n produit de p et q (le modulo dans l'équation)
