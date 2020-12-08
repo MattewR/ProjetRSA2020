@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
         bouton_communication_RSA = findViewById(R.id.button_communication);
 
 
+
         // Quand on clisk sur le bouton Generer les codes RSA
         bouton_generer_codes.setOnClickListener(new View.OnClickListener() {
             /**
