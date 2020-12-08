@@ -66,8 +66,13 @@ public class SecondAct extends AppCompatActivity {
         final String[] parts = e_et_n.split("_");
         final String n = parts[1];
 
-
-
+        if (isClient) {
+            button_decrypter.setEnabled(false);
+        }
+        else {
+            // Si c'est le serveur --> empecher de clicker sur encrypter et envoyer
+            button_encrypter_send.setEnabled(false);
+        }
         /**
          * Bouton Encrypter et Envoyer dans l'activité 2 pour l'utilisation du client:
          * - Convertit le message écrit en base 36 puis en base 10 pour effectuer les calculs modulaires
@@ -90,7 +95,7 @@ public class SecondAct extends AppCompatActivity {
                 if (isClient) {
 
                     // Empecher le client de clicker sur le bouton decrypter
-                    button_decrypter.setClickable(false);
+
 
                     String message = message_a_encrypter.getText().toString();
                     if (message.length() != 0) {
@@ -115,7 +120,7 @@ public class SecondAct extends AppCompatActivity {
 
 
                         // Chiffrer le message
-                        Integer message_crypter = exponentiation_modulaire(Integer.parseInt(message_base10), Integer.parseInt(e), Integer.parseInt(n));
+                        Integer message_crypter = exponentiation_modulaire((int)Double.parseDouble(message_base10), (int)Double.parseDouble(e), (int)Double.parseDouble(n));
                         System.out.println("Message Encrypter: " + message_crypter);
 
 
@@ -126,14 +131,6 @@ public class SecondAct extends AppCompatActivity {
                         if (isClient) {
                             send(message_crypter.toString());
                         }
-                        try {
-                            serverThread.join();
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    } else {
-                        // Si c'est le serveur --> empecher de clicker sur encrypter et envoyer
-                        button_encrypter_send.setClickable(false);
                     }
                 }
 
@@ -188,7 +185,7 @@ public class SecondAct extends AppCompatActivity {
                 // --------------------------- Decrypter le message --------------------------------
 
                 // Decrypter le message en base 10 avec un tableau d'exponentiation modulaire
-                int message_decrypter = exponentiation_modulaire(Integer.parseInt(message), Integer.parseInt(d),  Integer.parseInt(n));
+                int message_decrypter = exponentiation_modulaire((int)Double.parseDouble(message), (int)Double.parseDouble(d),  (int)Double.parseDouble(n));
 
 
                 // Reconvertir le message vers la base 36 en String
@@ -291,9 +288,9 @@ public class SecondAct extends AppCompatActivity {
                     message = ptAcces.receiveMessage();
 
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };
@@ -304,9 +301,9 @@ public class SecondAct extends AppCompatActivity {
 
     /**
      * Permet l'envoie du message peu importe si c'est le client ou le serveur qui l'envoie.
-     * @param message Le message souhaitant être envoyé.
+     * @param messager Le message souhaitant être envoyé.
      */
-    public void send(final String message) {
+    public void send(final String messager) {
         final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
         Runnable serverTask = new Runnable() {
@@ -314,12 +311,12 @@ public class SecondAct extends AppCompatActivity {
             public void run() {
 
                 try {
-                    ptAcces.sendMessage(message);
+                    ptAcces.sendMessage(messager);
 
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };

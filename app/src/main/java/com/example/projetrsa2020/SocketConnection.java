@@ -79,21 +79,17 @@ public class SocketConnection extends Application {
      */
     public void sendMessage(String message) {
 
-        DataOutputStream outputStream = null;
+        DataOutputStream outputStream;
         try {
             if (socketServer == null) {
                 outputStream = new DataOutputStream(socketClient.getOutputStream());
+                outputStream.writeUTF(message);
+                outputStream.flush();
             } else {
                 outputStream = new DataOutputStream(socketServerAccept.getOutputStream());
+                outputStream.writeUTF(message);
+                outputStream.flush();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-
-            outputStream.writeUTF(message);
-            //Envoie au socket le message
-            outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,30 +106,46 @@ public class SocketConnection extends Application {
 
         try {
             //Permet de call la fonction peu importe si on est un client ou un serveur
-            if (socketServerAccept != null) {
-                inputStream = new DataInputStream(socketServerAccept.getInputStream());
-            } else {
+            if (socketServer == null) {
                 inputStream = new DataInputStream(socketClient.getInputStream());
+                String toSend = "";
+                //Attend de recevoir le message
+                while (toSend.equals("")) {
+                    try {
+                        toSend = inputStream.readUTF();
+                        if(!toSend.equals("")) {
+                            return toSend;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } else {
+                inputStream = new DataInputStream(socketServerAccept.getInputStream());
+                String toSend = "";
+                //Attend de recevoir le message
+                while (toSend.equals("")) {
+                    try {
+                        toSend = inputStream.readUTF();
+                        if(!toSend.equals("")) {
+                            return toSend;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        String toSend = "";
-        while (toSend.equals("")) {
-            try {
-                toSend = inputStream.readUTF();
-                inputStream.close();
-                if(!toSend.equals("")) {
-                    return toSend;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
+
         return "";
 
     }

@@ -133,9 +133,9 @@ public class MainActivity extends AppCompatActivity {
                         connectez = true;
                     }
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };
@@ -181,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
                     message = ptAcces.receiveMessage();
 
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };
@@ -209,9 +209,9 @@ public class MainActivity extends AppCompatActivity {
                     ptAcces.sendMessage(message);
 
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                 if(connectez && !isClient) {
                     // ArrayList de nombre premiers
                     ArrayList<Double> prime_numbers = prime();
-
+                    //Pas générer e < 0
                     // Generer aleatoirement n (n = p x q)
                     int min = 0;
                     int max = prime_numbers.size();
@@ -628,6 +628,7 @@ public class MainActivity extends AppCompatActivity {
      * @return La valeur de l'inverse modulaire
      */
     public Double euclide_etendue(double a, double d) {
+
         double r = a;
         double x = 1;
         double y = 0;
@@ -642,17 +643,19 @@ public class MainActivity extends AppCompatActivity {
             r = r_prime;
             x = x_prime;
             y = y_prime;
-            r_prime = r - q * r_prime;
-            x_prime = x - q * x_prime;
-            y_prime = y - q * y_prime;
+            r_prime = r - (q * r_prime);
+            x_prime = x - (q * x_prime);
+            y_prime = y - (q * y_prime);
         }
 
-        while (x < 0) {
+        while (x <= 0) {
             x += d;
             System.out.println(x);
+
         }
 
-        return y;
+
+        return a;
     }
 
 
