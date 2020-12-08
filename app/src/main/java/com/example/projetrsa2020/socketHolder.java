@@ -1,3 +1,9 @@
+/*
+SocketHolder.java
+Permet de manipuler les sockets à travers l'application
+Date 8 Décembre 2020
+Par Julien-Pierre et Mathis
+ */
 package com.example.projetrsa2020;
 
 /**

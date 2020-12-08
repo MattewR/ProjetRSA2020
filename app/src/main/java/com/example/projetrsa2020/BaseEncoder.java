@@ -1,6 +1,12 @@
 package com.example.projetrsa2020;
 
-/*
+/*-------------------------------------------------
+ * Librairie fait par quelqu'un sur stack overflow
+ * ------------------------------------------------
+ *
+ *
+ * Détails:
+ *
  * Licensced for commercial or non-commercial use, modification and
  * redistribution provided the source code retain this license header and
  * attribution.  Written to answer to Stack Overflow question 15735079.  See

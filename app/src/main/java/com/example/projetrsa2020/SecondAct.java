@@ -1,8 +1,13 @@
-package com.example.projetrsa2020;
+/*
+SecondAct.java
+Seconde activité de l'application
+Date 8 Décembre 2020
+Par Julien-Pierre et Mathis
+ */
 
+package com.example.projetrsa2020;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;

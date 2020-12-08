@@ -1,3 +1,9 @@
+/*
+SocketConnection.java
+Classe permettant de facilité l'utilisation des sockets
+Date 8 Décembre 2020
+Par Julien-Pierre et Mathis
+ */
 package com.example.projetrsa2020;
 import android.app.Application;
 import android.content.Context;

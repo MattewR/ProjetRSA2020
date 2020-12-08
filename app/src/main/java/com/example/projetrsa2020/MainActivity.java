@@ -1,5 +1,10 @@
+/*
+MainActivity.java
+Activité principale de l'application
+Date 8 Décembre 2020
+Par Julien-Pierre et Mathis
+ */
 package com.example.projetrsa2020;
-
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Application;
 import android.content.Context;
@@ -236,11 +241,10 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     ptAcces.close();
-
                 } catch (NumberFormatException e) {
-                    throw e;
+                    e.printStackTrace();
                 } catch (NullPointerException e) {
-                    throw e;
+                    e.printStackTrace();
                 }
             }
         };
@@ -259,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle("Messagerie Recevoir-Sans-Agent");
+        getSupportActionBar().setTitle(getString(R.string.titre));
         // Relier chaque element graphique dans le code
         bouton_generer_codes = findViewById(R.id.button_generer_codes);
         bouton_communication_RSA = findViewById(R.id.button_communication);
